@@ -241,7 +241,6 @@ body.gated nav,body.gated #addbtn,body.gated #setBtn,body.gated .side{display:no
 <div id="pop"></div>
 <div id="toast" class="toast hide"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="config.js"></script>
 <script>
@@ -447,7 +446,7 @@ function renderStock() {
   if (loading()) { $('#main').innerHTML = '<div class="empty">Loading…</div>'; return; }
   if (!S.items.length) {
     $('#main').innerHTML = `<h2 class="h">Stock</h2><div class="card empty"><b>No items yet</b>Add the things your kitchen store keeps.<br><br>
-      ${S.canWrite ? `<button class="btn" id="first">+ Add item</button><br><br><button class="btn grey" id="starter">Add common items (rice, dal, oil…)</button><br><br><button class="btn grey" data-go="upload">Upload an Excel file</button>${S.isOwner ? '<br><br><label class="btn grey" for="impFile">Import backup file (.json)</label><input type="file" id="impFile" class="hide" accept=".json,application/json">' : ''}` : ''}</div>`;
+      ${S.canWrite ? `<button class="btn" id="first">+ Add item</button><br><br><button class="btn grey" id="starter">Add common items (rice, dal, oil…)</button><br><br><button class="btn grey" data-go="upload">Upload an Excel file</button>${true ? '<br><br><label class="btn grey" for="impFile">Import backup file (.json)</label><input type="file" id="impFile" class="hide" accept=".json,application/json">' : ''}` : ''}</div>`;
     return;
   }
   if (!$('#q')) {
@@ -1350,89 +1349,34 @@ window.appBack = () => {
 };
 
 
-/* ---------- Firebase: sign-in, access, sync ---------- */
-let auth = null, fbUser = null, unsubs = [];
-S.access = null; S.isOwner = false;
-const GLOGO = '<svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
-const myEmail = () => (fbUser && fbUser.email || '').toLowerCase();
-
-// Writes: don't make people wait for the server (offline works); report late failures.
+/* ---------- Firebase: open access (anyone with the link), live sync ---------- */
+let unsubs = [];
+S.isOwner = true;
+const myName = () => { try { return localStorage.getItem('ksi_name') || ''; } catch { return ''; } };
 function fsw(p) {
   return new Promise((res, rej) => {
     let settled = false;
     const t = setTimeout(() => { settled = true; res(); }, 1500);
     p.then(() => { if (!settled) { clearTimeout(t); settled = true; res(); } },
-      e => { if (!settled) { clearTimeout(t); settled = true; rej(e); } else toast(e && e.code === 'permission-denied' ? 'A change was refused: your Gmail does not have access.' : 'A change could not be saved. Check internet.'); });
+      e => { if (!settled) { clearTimeout(t); settled = true; rej(e); } else toast(e && e.code === 'permission-denied' ? 'A change was refused. Check the Firebase rules.' : 'A change could not be saved. Check internet.'); });
   });
 }
 function names() {
-  document.querySelectorAll('.who[data-uid]').forEach(e => { const b = e.dataset.uid || ''; e.textContent = b.includes('@') ? b.split('@')[0] : ''; });
+  document.querySelectorAll('.who[data-uid]').forEach(e => { const b = e.dataset.uid || ''; e.textContent = /^u_/.test(b) ? '' : b.includes('@') ? b.split('@')[0] : b; });
 }
 function gate(html) {
   document.body.classList.add('gated');
-  $('#title').textContent = S.settings.schoolName || 'Kitchen Store';
-  $('#subtitle').textContent = 'School kitchen inventory';
   $('#logoBtn').innerHTML = logoHTML(); $('#status').textContent = '';
   $('#main').innerHTML = `<div class="card pad gate"><div class="logo">${potIcon(34)}</div>${html}</div>`;
-}
-function showLogin(msg) {
-  gate(`<h2>Kitchen Store</h2><p>Sign in with your Google (Gmail) account to see and update the kitchen stock.</p>
-    <button class="gbtn" id="gsign">${GLOGO}Sign in with Google</button>
-    ${msg ? `<div class="err" style="text-align:left">${esc(msg)}</div>` : ''}`);
-  $('#gsign').onclick = signIn;
-}
-async function signIn() {
-  const p = new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt: 'select_account'});
-  try { await auth.signInWithPopup(p); }
-  catch (e) {
-    const c = e && e.code;
-    if (c === 'auth/popup-blocked' || c === 'auth/operation-not-supported-in-this-environment' || c === 'auth/web-storage-unsupported') { try { await auth.signInWithRedirect(p); return; } catch (e2) { e = e2; } }
-    if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return;
-    if (c === 'auth/unauthorized-domain') return showLogin('This website is not yet allowed in Firebase. Add it under Authentication → Settings → Authorized domains.');
-    if (c === 'auth/network-request-failed') return showLogin('No internet connection. Connect and try again.');
-    showLogin('Sign-in did not work. Please try again. (' + (c || 'error') + ')');
-  }
-}
-async function signOut() { try { await auth.signOut(); } catch {} location.reload(); }
-function showClaim() {
-  gate(`<h2>Set up your kitchen store</h2><p>You are signed in as</p><div class="email">${esc(myEmail())}</div>
-    <p style="margin-top:14px">This Gmail will be the <b>owner</b>. Only people you add later can open the store.</p>
-    <div class="row2"><button class="btn grey" id="other">Use another account</button><button class="btn" id="claim">Set up</button></div>`);
-  $('#other').onclick = signOut;
-  $('#claim').onclick = async () => {
-    $('#claim').disabled = true;
-    try { await db.doc('config/access').set({owner: myEmail(), staff: [], createdAt: Date.now()}); await checkAccess(); }
-    catch (e) { toast(e && e.code === 'permission-denied' ? 'Someone has already set up this store.' : 'Could not set up. Check internet.'); await checkAccess(); }
-  };
-}
-function showDenied() {
-  gate(`<h2>Ask for access</h2><p>You are signed in as</p><div class="email">${esc(myEmail())}</div>
-    <p style="margin-top:14px">Ask the kitchen store owner to add this Gmail in <b>⚙ Settings → Staff</b>. Then tap “Check again”.</p>
-    <div class="row2"><button class="btn grey" id="other">Use another account</button><button class="btn" id="again">Check again</button></div>`);
-  $('#other').onclick = signOut; $('#again').onclick = () => checkAccess();
-}
-async function checkAccess() {
-  gate('<p>Checking access…</p>');
-  let snap;
-  try { snap = await db.doc('config/access').get(); }
-  catch (e) {
-    if (e && e.code === 'permission-denied') return showLogin('Firebase security rules are not set up yet. Paste the rules from the setup guide.');
-    return gate(`<h2>Can't connect</h2><p>Check your internet connection.</p><div class="row2"><button class="btn" id="again">Try again</button></div>`), ($('#again').onclick = () => checkAccess());
-  }
-  if (!snap.exists) return showClaim();
-  const a = snap.data(), me = myEmail();
-  if (a.owner !== me && !(a.staff || []).includes(me)) return showDenied();
-  S.access = a; S.isOwner = a.owner === me;
-  startApp();
 }
 function startApp() {
   if (unsubs.length) return;
   document.body.classList.remove('gated');
-  S.mode = 'cloud'; S.me = myEmail(); S.canWrite = true; S.loaded = false;
+  S.mode = 'cloud'; S.me = myName(); S.canWrite = true; S.loaded = false;
   $('#main').innerHTML = ''; render(true);
   const t = setTimeout(() => { if (!S.loaded) $('#main').innerHTML = '<div class="empty">Still loading… check your internet connection.</div>'; }, 12000);
   const keep = () => { const a = document.activeElement; return a && a.id === 'q'; };
-  const lost = e => { if (e && e.code === 'permission-denied') { toast('Your access was removed.'); setTimeout(() => location.reload(), 1500); } };
+  const lost = e => { if (e && e.code === 'permission-denied') gate('<h2>Database not ready</h2><p>The Firebase security rules have not been published yet. Paste the rules from the setup guide and reload.</p>'); };
   unsubs.push(db.collection('items').onSnapshot(s => {
     S.items = s.docs.map(d => ({id: d.id, ...d.data()})); S.loaded = true; clearTimeout(t);
     if (S.tab === 'stock' && !keep()) $('#main').innerHTML = '';
@@ -1442,13 +1386,6 @@ function startApp() {
   unsubs.push(db.collection('meals').orderBy('at', 'desc').limit(300).onSnapshot(s => { S.meals = s.docs.map(d => ({id: d.id, ...d.data()})); if (S.tab === 'home' || S.tab === 'meals') render(); }, lost));
   unsubs.push(db.collection('menus').onSnapshot(s => { S.menus = s.docs.map(d => ({id: d.id, ...d.data()})); if (S.tab === 'meals') { $('#main').innerHTML = ''; render(true); } }, lost));
   unsubs.push(db.doc('settings/main').onSnapshot(s => { S.settings = {schoolName: '', ...(s.exists ? s.data() : {})}; render(); }, lost));
-  unsubs.push(db.doc('config/access').onSnapshot(s => {
-    if (!s.exists) return;
-    const a = s.data(), me = myEmail();
-    if (a.owner !== me && !(a.staff || []).includes(me)) { toast('Your access was removed.'); setTimeout(() => location.reload(), 1500); return; }
-    S.access = a; S.isOwner = a.owner === me;
-    if ($('#staffList')) drawStaff();
-  }, () => {}));
 }
 
 /* ---------- settings: school, account, staff, backup ---------- */
@@ -1467,42 +1404,19 @@ function settingsPopup() {
           <input type="file" id="lf" accept="image/*" class="hide"></div>
         <div class="row2"><button class="btn" type="submit">Save school details</button></div>
       </form>
-      ${S.isOwner ? `<div class="sect"><label class="lbl">Staff who can use the app</label>
-        <p style="font-size:14px">Add each person's Gmail address. They sign in with Google and can then make entries.</p>
-        <div id="staffList"></div>
-        <div class="addstaff"><input class="field" id="newStaff" type="email" inputmode="email" placeholder="name@gmail.com" autocomplete="off"><button class="btn" id="addStaff" type="button">Add</button></div></div>
+      <div class="sect"><label class="lbl">Your name on this phone <span style="color:var(--muted);font-weight:600">(optional)</span></label>
+        <p style="font-size:14px">Shown in History next to the entries you make.</p>
+        <div class="addstaff"><input class="field" id="myName" value="${esc(myName())}" placeholder="e.g. Sunita (cook)" autocomplete="off"><button class="btn" id="saveName" type="button">Save</button></div></div>
       <div class="sect"><label class="lbl">Backup</label><p style="font-size:14px">Download all data as a file, or bring data in from a backup file.</p>
-        <div class="btns"><button class="btn grey sm" id="expBtn" type="button">Download backup</button><label class="btn grey sm" for="impFile">Import backup</label><input type="file" id="impFile" class="hide" accept=".json,application/json"></div></div>` : ''}
-      <div class="sect"><label class="lbl">Account</label><p style="font-size:14px">Signed in as <b>${esc(myEmail())}</b>${S.isOwner ? ' (owner)' : ''}</p>
-        <div class="row2"><button class="btn grey" id="soBtn" type="button">Sign out</button><button class="btn grey" type="button" data-close>Close</button></div></div>`);
+        <div class="btns"><button class="btn grey sm" id="expBtn" type="button">Download backup</button><label class="btn grey sm" for="impFile">Import backup</label><input type="file" id="impFile" class="hide" accept=".json,application/json"></div>
+        <div class="row2"><button class="btn grey" type="button" data-close>Close</button></div></div>`);
     $('#lf').onchange = async e => { const f = e.target.files[0]; if (!f) return; const d = await shrinkLogo(f); if (d) { logo = d; draw(); } else toast('Could not open this image'); };
     if ($('#lrm')) $('#lrm').onclick = () => { logo = ''; draw(); };
     $('#f').onsubmit = async e => { e.preventDefault(); try { await saveSettings({...S.settings, schoolName: $('#sn').value.trim(), address: $('#sa').value.trim(), logo}); toast('Saved'); } catch {} };
-    $('#soBtn').onclick = signOut;
-    if (S.isOwner) {
-      drawStaff();
-      $('#addStaff').onclick = addStaff;
-      $('#newStaff').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addStaff(); } });
-      $('#expBtn').onclick = exportAll;
-    }
+    $('#saveName').onclick = () => { const v = $('#myName').value.trim().slice(0, 40); try { localStorage.setItem('ksi_name', v); } catch {} S.me = v; toast(v ? 'Saved. Entries will show “' + v + '”.' : 'Name removed'); };
+    $('#expBtn').onclick = exportAll;
   };
   draw();
-}
-function drawStaff() {
-  const a = S.access || {staff: []}, box = $('#staffList'); if (!box) return;
-  box.innerHTML = `<div class="staff"><span>${esc(a.owner)}</span><small>Owner</small></div>` +
-    (a.staff || []).map(m => `<div class="staff"><span>${esc(m)}</span><button class="linkbtn r" type="button" data-rmstaff="${esc(m)}">Remove</button></div>`).join('');
-  box.querySelectorAll('[data-rmstaff]').forEach(b => b.onclick = async () => {
-    const list = (S.access.staff || []).filter(x => x !== b.dataset.rmstaff);
-    try { await safe(() => fsw(db.doc('config/access').update({staff: list}))); S.access = {...S.access, staff: list}; drawStaff(); toast('Removed'); } catch {}
-  });
-}
-async function addStaff() {
-  const v = $('#newStaff').value.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return toast('Type a full Gmail address, like name@gmail.com');
-  const list = [...new Set([...(S.access.staff || []), v])];
-  if (v === S.access.owner || list.length === (S.access.staff || []).length) return toast('Already added');
-  try { await safe(() => fsw(db.doc('config/access').update({staff: list}))); S.access = {...S.access, staff: list}; $('#newStaff').value = ''; drawStaff(); toast(v + ' can now sign in'); } catch {}
 }
 async function exportAll() {
   toast('Preparing backup…');
@@ -1517,7 +1431,7 @@ async function importBackup(f) {
   let d; try { d = JSON.parse(await f.text()); } catch { return toast('This is not a backup file'); }
   if (!d || d.app !== 'kitchen-store' || !Array.isArray(d.items)) return toast('This is not a Kitchen Store backup file');
   const cols = ['items', 'logs', 'meals', 'menus'], n = cols.reduce((a, c) => a + (Array.isArray(d[c]) ? d[c].length : 0), 0);
-  pop(`<h2>Import backup?</h2><p>${d.items.length} items and ${(d.logs || []).length} history entries${d.saved ? ' from ' + esc(String(d.saved).slice(0, 10)) : ''}. Items with the same name already here are updated, nothing is deleted.</p>
+  pop(`<h2>Import backup?</h2><p>${d.items.length} items and ${(d.logs || []).length} history entries${d.saved ? ' from ' + esc(String(d.saved).slice(0, 10)) : ''}. Matching items are updated; nothing is deleted.</p>
     <div class="row2"><button class="btn grey" data-close>Cancel</button><button class="btn" id="impYes">Import</button></div>`);
   $('#impYes').onclick = async () => {
     const b = $('#impYes'); b.disabled = true;
@@ -1532,7 +1446,7 @@ async function importBackup(f) {
         await batch.commit();
       }
       close(); toast(`Imported ${d.items.length} items`); go('stock');
-    } catch (e) { b.disabled = false; b.textContent = 'Try again'; toast(e && e.code === 'permission-denied' ? 'Only the owner can import.' : 'Import failed. Check internet and try again.'); }
+    } catch (e) { b.disabled = false; b.textContent = 'Try again'; toast('Import failed. Check internet and try again.'); }
   };
 }
 document.addEventListener('change', e => { if (e.target.id === 'impFile' && e.target.files[0]) { const f = e.target.files[0]; e.target.value = ''; importBackup(f); } });
@@ -1547,16 +1461,9 @@ window.addEventListener('online', () => render()); window.addEventListener('offl
     return gate(`<h2>Almost ready</h2><p>${window.firebase ? 'The Firebase settings have not been added yet.' : 'Could not load. Check your internet connection and reload.'}</p>`);
   }
   firebase.initializeApp(cfg);
-  auth = firebase.auth();
   db = firebase.firestore();
   try { db.enablePersistence({synchronizeTabs: true}).catch(() => {}); } catch {}
-  gate('<p>Loading…</p>');
-  auth.getRedirectResult().catch(e => { if (e && e.code && e.code !== 'auth/no-auth-event') showLogin('Sign-in did not work. Please try again. (' + e.code + ')'); });
-  auth.onAuthStateChanged(u => {
-    fbUser = u;
-    if (!u) { unsubs.forEach(f => { try { f(); } catch {} }); unsubs = []; return showLogin(); }
-    checkAccess();
-  });
+  startApp();
 })();
 </script>
 </body>
