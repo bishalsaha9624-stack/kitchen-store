@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f6f4a">
+<title>School Kitchen Store</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f2ec;--card:#fff;--ink:#17201b;--ink2:#3d4741;--muted:#6b736e;--line:#e6e2d8;--line2:#efece4;
+  --pri:#1f6f4a;--pri-d:#185a3c;--pri2:#e4f1ea;--red:#c2410c;--red2:#fdeee5;--warn:#b45309;--warn2:#fdf3df;--crit:#b91c1c;--crit2:#fde8e8;
+  --grid:#ebe7de;--shadow:0 1px 2px rgba(23,32,27,.04),0 6px 20px rgba(23,32,27,.05);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#101412;--card:#191f1c;--ink:#e8ece9;--ink2:#c3cac5;--muted:#929b95;--line:#29312d;--line2:#222925;
+  --pri:#4cb07f;--pri-d:#3d9a6c;--pri2:#1b3127;--red:#f0905a;--red2:#3a2418;--warn:#e8a94a;--warn2:#3a2d16;--crit:#f27b7b;--crit2:#3b1e1e;--grid:#26302b;--shadow:none}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:16px;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.shell{display:flex;min-height:100vh}
+.side{display:none}
+.wrap{flex:1;min-width:0}
+.page{max-width:980px;margin:0 auto;padding:0 16px 110px}
+header{position:sticky;top:0;z-index:15;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);padding:12px 0 10px;border-bottom:1px solid var(--line2);margin-bottom:6px}
+.top{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--pri);color:#fff;display:grid;place-items:center;flex:none;overflow:hidden;border:0;padding:0}
+.logo img{width:100%;height:100%;object-fit:cover;background:#fff}
+.titlebtn{flex:1;min-width:0;border:0;background:none;text-align:left;padding:0}
+.titlebtn h1{font-size:18px;margin:0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em}
+.titlebtn small{display:block;color:var(--muted);font-size:12.5px;font-weight:600}
+.status{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.iconbtn{border:0;background:transparent;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--muted);flex:none}
+.iconbtn:hover{background:var(--card)}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+nav button{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;font-size:11.5px;font-weight:700;color:var(--muted);border-radius:12px}
+nav button.on{color:var(--pri)}
+nav button svg{width:22px;height:22px}
+@media (min-width:900px){
+  nav.bottom{display:none}
+  .side{display:flex;flex-direction:column;gap:4px;width:232px;padding:20px 12px;border-right:1px solid var(--line);position:sticky;top:0;height:100vh;background:var(--card)}
+  .side .brand{display:flex;align-items:center;gap:10px;padding:0 8px 22px}
+  .side .brand b{font-size:15px;line-height:1.2}
+  .side button{flex:none;flex-direction:row;gap:12px;font-size:14.5px;padding:11px 12px;justify-content:flex-start}
+  .side button.on{background:var(--pri2)}
+  .page{padding:0 28px 60px}
+  .fab{bottom:28px!important}
+}
+h2.h{font-size:22px;margin:14px 0 4px;letter-spacing:-.015em}
+.sub{color:var(--muted);font-size:14px;font-weight:600;margin:0 0 12px}
+h3.sec{font-size:15px;margin:22px 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h3.sec span{color:var(--muted);font-weight:600;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.card+.card{margin-top:12px}
+.pad{padding:18px}
+.pad h2{margin:0 0 6px;font-size:18px}
+.pad p{margin:0;color:var(--muted);line-height:1.5;font-size:14.5px}
+.grid2{display:grid;gap:12px}
+@media (min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+/* dashboard */
+.hero{display:flex;align-items:center;gap:14px;padding:18px;background:linear-gradient(135deg,var(--pri),var(--pri-d));color:#fff;border:0}
+.hero .logo{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.18)}
+.hero h2{margin:0;font-size:19px}
+.hero p{margin:3px 0 0;opacity:.85;font-size:13.5px;font-weight:600}
+.hero .btn{margin-left:auto;background:#fff;color:var(--pri-d);white-space:nowrap}
+@media (max-width:560px){.hero{flex-wrap:wrap}.hero .btn{margin-left:0;width:100%}}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+@media (min-width:760px){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{padding:14px 16px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:16px;box-shadow:var(--shadow)}
+.tile span{font-size:12.5px;color:var(--muted);font-weight:700;display:block}
+.tile b{display:block;font-size:28px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile small{font-size:12px;color:var(--muted);font-weight:600}
+.tile.warn b{color:var(--warn)}
+.chart{padding:16px 16px 10px;position:relative}
+.chart h4{margin:0;font-size:15px}
+.chart .cap{color:var(--muted);font-size:12.5px;font-weight:600;margin:2px 0 10px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:inherit;fill:var(--muted);font-size:11px;font-weight:600}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:700;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-100%);margin-top:-8px;z-index:5}
+.lastrow{display:flex;align-items:center;gap:10px;padding:9px 0}
+.lastrow .nm{width:42%;min-width:0;font-weight:700;font-size:14px;line-height:1.25}
+.lastrow .nm .flag{display:inline-block;margin:2px 0 0 0}
+.lastrow .nm{display:flex;flex-direction:column;align-items:flex-start}
+.lastrow .bar{flex:1;height:12px;background:var(--line2);border-radius:6px;overflow:hidden}
+.lastrow .bar i{display:block;height:100%;border-radius:0 6px 6px 0;background:var(--pri)}
+.lastrow .bar i.w{background:var(--warn)} .lastrow .bar i.c{background:var(--crit)}
+.lastrow .val{width:86px;text-align:right;font-size:13px;font-weight:700;color:var(--ink2);white-space:nowrap}
+.flag{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:99px;margin-left:4px}
+.flag.c{background:var(--crit2);color:var(--crit)} .flag.w{background:var(--warn2);color:var(--warn)}
+/* stock */
+.search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;outline:0}
+.search:focus{border-color:var(--pri)}
+.toolbar{display:flex;gap:8px;margin-top:12px}
+.toolbar .search{flex:1}
+.alert{display:block;width:100%;text-align:left;border:0;margin-top:10px;padding:12px 14px;border-radius:14px;background:var(--warn2);color:var(--warn);font-weight:700}
+.item{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-bottom:1px solid var(--line2)}
+.item:last-child{border-bottom:0}
+.info{flex:1;min-width:0;background:none;border:0;text-align:left;padding:0}
+.name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qty{font-size:14px;color:var(--muted);font-weight:600;margin-top:2px}
+.qty b{font-size:18px;color:var(--ink)}
+.low .qty b{color:var(--warn)} .zero .qty b{color:var(--red)}
+.tag{font-size:11px;font-weight:800;padding:2px 7px;border-radius:99px;margin-left:6px;background:var(--warn2);color:var(--warn)}
+.zero .tag{background:var(--red2);color:var(--red)}
+.pm{width:48px;height:48px;border-radius:14px;border:0;font-size:26px;font-weight:700;line-height:1;flex:none}
+.minus{background:var(--red2);color:var(--red)} .plus{background:var(--pri2);color:var(--pri)}
+.fab{position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:20;border:0;border-radius:99px;padding:15px 22px;background:var(--pri);color:#fff;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.empty{padding:30px 18px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;background:var(--pri);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.grey{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.red{background:var(--red);color:#fff}
+.btn.sm{padding:9px 13px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.log{display:flex;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line2)}
+.log:last-child{border-bottom:0}
+.log small{display:block;color:var(--muted);font-size:13px;font-weight:600;margin-top:2px}
+.in{color:var(--pri);font-weight:800} .out{color:var(--red);font-weight:800}
+.day{font-size:13px;font-weight:800;color:var(--muted);margin:18px 4px 6px}
+.month{display:flex;align-items:center;gap:10px;margin-top:6px}
+.month input{flex:1;max-width:260px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:11px 12px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line2);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+th{font-size:12px;color:var(--muted);font-weight:800;background:var(--card)}
+@media (max-width:560px){th,td{padding:9px 7px;font-size:13.5px}th{font-size:11px}}
+tfoot td{font-weight:800;border-top:2px solid var(--line);border-bottom:0}
+tbody tr:last-child td{border-bottom:0}
+.rephead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:16px 16px 10px;flex-wrap:wrap}
+.rephead h4{margin:0;font-size:16px}
+.rephead p{margin:2px 0 0;color:var(--muted);font-size:13px;font-weight:600}
+/* meals */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:9px 14px;font-weight:700;font-size:14px}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.chip.add{border-style:dashed;color:var(--pri)}
+.lbl{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+.field{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 14px;outline:0;font-size:17px}
+.field:focus{border-color:var(--pri)}
+.big{font-size:28px;font-weight:800;text-align:center}
+.row2{display:flex;gap:10px;margin-top:16px}
+.row2 .btn{flex:1}
+.mline{display:grid;grid-template-columns:1fr 104px;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line2)}
+.mline:last-child{border-bottom:0}
+.mline .nm{font-weight:700}
+.mline .meta{grid-column:1/2;font-size:12.5px;color:var(--muted);font-weight:600}
+.mline input{grid-row:1/3;grid-column:2;width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px;text-align:right;font-size:16px}
+.mline .warn{grid-column:1/3;font-size:13px;font-weight:700;color:var(--red)}
+.mtotal{display:flex;justify-content:space-between;margin-top:6px;font-size:13px;color:var(--muted);font-weight:700}
+.mealrow{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-bottom:1px solid var(--line2)}
+.mealrow:last-child{border-bottom:0}
+.mealrow .d{width:46px;text-align:center;flex:none;background:var(--pri2);color:var(--pri);border-radius:10px;padding:5px 0;font-weight:800;line-height:1.1}
+.mealrow .d small{display:block;font-size:10.5px;font-weight:700}
+.mealrow .b{flex:1;min-width:0}
+.mealrow .b small{display:block;color:var(--muted);font-size:12.5px;font-weight:600;margin-top:2px;line-height:1.4}
+.linkbtn{border:0;background:none;font-weight:800;color:var(--pri);padding:4px;font-size:14px}
+.linkbtn.r{color:var(--red)}
+.ing{display:grid;grid-template-columns:1fr 92px 40px 32px;gap:6px;align-items:center;margin-top:8px}
+.ing select,.ing input{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 8px;font-size:15px;color:inherit}
+.ing input{text-align:right}
+.ing span{font-size:13px;color:var(--muted);font-weight:700}
+.ing button{border:0;background:none;color:var(--muted);font-size:20px}
+/* popup */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+@media (min-width:600px){.scrim{align-items:center}.sheet{border-radius:22px}}
+.sheet h2{margin:0 0 4px;font-size:20px}
+.sheet p{margin:0 0 12px;color:var(--muted)}
+.units{display:flex;flex-wrap:wrap;gap:6px}
+.units button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:8px 14px;font-weight:700}
+.units button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:700;z-index:80;max-width:90vw;text-align:center}
+.hide{display:none!important}
+.note{font-size:13px;color:var(--muted);margin:10px 4px}
+textarea{width:100%;min-height:150px;font-family:monospace;font-size:12px}
+.logoedit{display:flex;align-items:center;gap:12px}
+.logoedit .logo{width:64px;height:64px;border-radius:16px}
+/* upload */
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:16px;padding:26px 14px;border:2px dashed var(--line);border-radius:16px;text-align:center;cursor:pointer;color:var(--muted);font-weight:600}
+.drop b{color:var(--pri);font-size:17px}
+.err{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--red2);color:var(--red);font-weight:600}
+.spin{width:38px;height:38px;border:4px solid var(--pri2);border-top-color:var(--pri);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.urow{padding:12px 14px;border-bottom:1px solid var(--line2)}
+.urow:last-child{border-bottom:0}
+.urow.off{opacity:.45}
+.uhead{display:flex;align-items:center;gap:10px}
+.uhead input[type=checkbox]{width:22px;height:22px;accent-color:var(--pri);flex:none}
+.uhead .nm{flex:1;min-width:0;font-weight:700}
+.urow select{width:100%;margin-top:8px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px;font:inherit;font-size:14px;color:inherit}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.nums label{font-size:12px;font-weight:700;color:var(--muted)}
+.nums input{width:100%;margin-top:3px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px;font:inherit;font-size:16px;text-align:right;color:inherit}
+.uwarn{margin-top:6px;font-size:13px;font-weight:700;color:var(--red)}
+.uinfo{margin-top:6px;font-size:13px;color:var(--muted);font-weight:600}
+.sticky{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom));display:flex;gap:10px;margin-top:14px;z-index:5}
+@media (min-width:900px){.sticky{bottom:12px}}
+.sticky .btn{flex:1}
+.delbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--red2);color:var(--red)}
+.delbar .linkbtn{color:inherit;text-decoration:underline}
+.delrow{cursor:pointer}
+.delrow input{width:24px;height:24px;accent-color:var(--red);flex:none}
+.delrow.sel{background:var(--red2)}
+body.gated nav,body.gated #addbtn,body.gated #setBtn,body.gated .side{display:none!important}
+.gate{max-width:440px;margin:40px auto 0;text-align:center}
+.gate .logo{width:72px;height:72px;border-radius:20px;margin:0 auto 14px}
+.gate h2{font-size:22px;margin:0 0 8px}
+.gate p{margin:0 0 6px}
+.gbtn{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;color:#1f1f1f;border-radius:99px;padding:12px 22px;font-weight:700;margin-top:18px;font-size:16px}
+.gbtn svg{width:20px;height:20px}
+.email{display:inline-block;margin-top:10px;padding:8px 14px;border-radius:10px;background:var(--pri2);color:var(--pri);font-weight:800;word-break:break-all}
+.staff{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line2);font-weight:600;font-size:15px;word-break:break-all}
+.staff span{flex:1}
+.staff small{color:var(--muted);font-weight:700}
+.addstaff{display:flex;gap:8px;margin-top:10px}
+.addstaff input{flex:1;min-width:0;font-size:15px}
+.sect{border-top:1px solid var(--line);margin-top:20px;padding-top:4px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="side" id="side"></nav>
+  <div class="wrap"><div class="page">
+    <header><div class="top">
+      <button class="logo" id="logoBtn" aria-label="School settings"></button>
+      <button class="titlebtn" id="titleBtn"><h1 id="title">Kitchen Store</h1><small id="subtitle">School kitchen inventory</small></button>
+      <span class="status" id="status"></span>
+      <button class="iconbtn" id="setBtn" aria-label="Settings"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div></header>
+    <div id="main"></div>
+  </div></div>
+</div>
+<nav class="bottom" id="bottom"></nav>
+<button class="fab hide" id="addbtn">+ Add item</button>
+<div id="pop"></div>
+<div id="toast" class="toast hide"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script>
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : NaN; };
+const r3 = n => Math.round(n * 1000) / 1000;
+const fmt = n => String(r3(+n || 0));
+const iso = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const today = () => iso(new Date());
+const addDays = (d, n) => { const x = new Date(d + 'T00:00:00'); x.setDate(x.getDate() + n); return iso(x); };
+const niceDay = d => { if (d === today()) return 'Today'; if (d === addDays(today(), -1)) return 'Yesterday'; try { return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short'}); } catch { return d; } };
+const longDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'}); } catch { return d; } };
+const shortDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {day:'2-digit', month:'2-digit', year:'numeric'}); } catch { return d; } };
+const monthName = m => { try { return new Date(m + '-01T00:00:00').toLocaleDateString('en-IN', {month:'long', year:'numeric'}); } catch { return m; } };
+const time = t => new Date(t).toLocaleTimeString('en-IN', {hour:'numeric', minute:'2-digit'});
+const lastDay = m => { const [y, mo] = m.split('-').map(Number); return m + '-' + String(new Date(y, mo, 0).getDate()).padStart(2, '0'); };
+const UNITS = ['kg','litre','pcs','packet','dozen','bag'];
+const STARTER = [['Rice','kg',50],['Atta (wheat flour)','kg',30],['Toor dal','kg',15],['Moong dal','kg',10],['Cooking oil','litre',10],['Salt','kg',5],['Sugar','kg',5],['Turmeric','kg',1],['Chilli powder','kg',1],['Potatoes','kg',20],['Onions','kg',15],['Tomatoes','kg',10],['Milk','litre',20],['Eggs','pcs',100],['LPG cylinder','pcs',1]];
+const ICON = {
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  stock:'<path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/>',
+  meals:'<path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M8 3c0 2 1 2 1 4M12 3c0 2 1 2 1 4M16 3c0 2 1 2 1 4"/>',
+  reports:'<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M9 8h3"/>',
+  history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+};
+const ic = (k, w = 22) => `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
+const potIcon = s => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M2 10h20"/><path d="M9 3c0 1.5 1 1.5 1 3M14 3c0 1.5 1 1.5 1 3"/></svg>`;
+
+/* ---------- state & storage ---------- */
+const S = {mode: 'loading', items: [], logs: [], meals: [], menus: [], settings: {schoolName: ''},
+  tab: 'home', q: '', onlyLow: false, del: false, delSel: new Set(),
+  month: today().slice(0, 7), report: null, canWrite: true, me: null, loaded: false};
+const M = {date: today(), menuId: '', students: '', over: {}, off: {}};
+let db = null, user = null, dl = null;
+const LS = { get(k, d) { try { return JSON.parse(localStorage.getItem('ksi_' + k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem('ksi_' + k, JSON.stringify(v)); } catch {} } };
+async function safe(fn) {
+  try { return await fn(); }
+  catch (e) {
+    if (e && (e.code === 'invalid_argument' || e.code === 'permission-denied')) { S.canWrite = false; toast('You can only view this store. Ask the owner for edit access.'); render(true); }
+    else if (e && e.code === 'quota_exceeded') toast('Storage is full.');
+    else toast('Not saved. Check internet and try again.');
+    throw e;
+  }
+}
+const newId = (col = 'items') => db ? db.collection(col).doc().id : col[0] + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+async function put(col, obj) {
+  const {id, ...d} = obj;
+  if (db) return safe(() => fsw(db.collection(col).doc(id).set(d)));
+  const arr = S[col], i = arr.findIndex(x => x.id === id);
+  if (i >= 0) arr[i] = obj; else arr.unshift(obj);
+  if (col === 'logs' && arr.length > 4000) arr.length = 4000;
+  LS.set(col, arr);
+}
+async function remove(col, id) {
+  if (db) return safe(() => fsw(db.collection(col).doc(id).delete()));
+  S[col] = S[col].filter(x => x.id !== id); LS.set(col, S[col]);
+}
+const saveItem = it => put('items', it);
+const delItem = id => remove('items', id);
+const addLog = l => put('logs', {id: newId('logs'), ...l});
+async function saveSettings(s) {
+  if (db) return safe(() => fsw(db.doc('settings/main').set(s)));
+  S.settings = s; LS.set('settings', s);
+}
+const byId = id => S.items.find(x => x.id === id);
+const menuById = id => S.menus.find(x => x.id === id);
+const isLow = it => (+it.qty || 0) <= 0 || ((+it.minQty || 0) > 0 && (+it.qty || 0) <= +it.minQty);
+
+async function change(id, type, amount, note, date, extra) {
+  const it = byId(id); const cur = +it.qty || 0;
+  if (type === 'out' && amount > cur + 1e-9) throw new Error(`Only ${fmt(cur)} ${it.unit} of ${it.name} left`);
+  const delta = type === 'out' ? -amount : amount, qty = r3(cur + delta), at = Date.now();
+  await saveItem({...it, qty, updatedAt: at});
+  await addLog({itemId: id, itemName: it.name, unit: it.unit, type, delta: r3(delta), balance: qty, date: date || today(), note: note || '', at, by: S.me || '', ...(extra || {})});
+  return qty;
+}
+
+/* ---------- shell ---------- */
+let toastT;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.remove('hide'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('hide'), 3000); }
+const NAV = [['home','Home'],['stock','Stock'],['meals','Meals'],['reports','Reports'],['history','History']];
+function logoHTML() { return S.settings.logo ? `<img src="${esc(S.settings.logo)}" alt="">` : potIcon(22); }
+let pending = false;
+function render(force) {
+  const ae = document.activeElement;
+  if (!force && ae && $('#main').contains(ae) && /INPUT|SELECT|TEXTAREA/.test(ae.tagName)) { pending = true; return; }
+  pending = false;
+  const name = S.settings.schoolName || 'Kitchen Store';
+  $('#title').textContent = name;
+  $('#subtitle').textContent = S.settings.schoolName ? 'Kitchen store' : 'Tap to add your school name';
+  $('#logoBtn').innerHTML = logoHTML();
+  $('#status').textContent = S.mode === 'loading' ? '' : (navigator.onLine === false ? 'Offline · will sync' : '');
+  const navTab = S.tab === 'upload' ? 'stock' : S.tab;
+  const btns = NAV.map(([k, l]) => `<button data-tab="${k}" class="${navTab === k ? 'on' : ''}">${ic(k)}<span>${l}</span></button>`).join('');
+  $('#bottom').innerHTML = btns;
+  $('#side').innerHTML = `<div class="brand"><div class="logo">${logoHTML()}</div><b>${esc(name)}</b></div>` + btns;
+  $('#addbtn').classList.toggle('hide', !(S.tab === 'stock' && S.canWrite && S.items.length && !S.del));
+  if (S.tab === 'home') renderHome();
+  else if (S.tab === 'stock') renderStock();
+  else if (S.tab === 'meals') renderMeals();
+  else if (S.tab === 'reports') renderReports();
+  else if (S.tab === 'history') renderHistory();
+  else if (S.tab === 'upload') { if (!$('#up')) renderUpload(); }
+  names();
+}
+document.addEventListener('focusout', () => setTimeout(() => { if (pending) render(); }, 60));
+function go(tab) {
+  S.tab = tab; S.del = false; $('#main').innerHTML = ''; window.scrollTo(0, 0);
+  if (tab === 'reports') loadReport();
+  render(true);
+}
+const loading = () => S.mode === 'loading' || (db && !S.loaded);
+
+/* ---------- home / dashboard ---------- */
+function usageStats() {
+  // average use per cooking day over the last 30 days, from the log
+  const from = addDays(today(), -30), days = new Set(), used = {};
+  S.logs.forEach(l => {
+    if (l.date < from || l.date > today()) return;
+    if (l.type === 'out') { days.add(l.date); used[l.itemId] = (used[l.itemId] || 0) - (+l.delta || 0); }
+    else if (l.type === 'undo') used[l.itemId] = (used[l.itemId] || 0) - (+l.delta || 0);
+  });
+  S.meals.forEach(m => { if (m.date >= from) days.add(m.date); });
+  const n = Math.max(days.size, 1);
+  return S.items.map(it => {
+    const perDay = (used[it.id] || 0) / n;
+    return {it, perDay, days: perDay > 0 ? (+it.qty || 0) / perDay : null};
+  }).filter(x => x.days !== null).sort((a, b) => a.days - b.days);
+}
+function renderHome() {
+  if (loading()) { $('#main').innerHTML = '<div class="empty">Loading…</div>'; return; }
+  const t = today(), m = t.slice(0, 7);
+  const mealsMonth = S.meals.filter(x => x.date && x.date.startsWith(m));
+  const students = mealsMonth.reduce((a, x) => a + (+x.students || 0), 0);
+  const cookDays = new Set(mealsMonth.map(x => x.date)).size;
+  const todayMeals = S.meals.filter(x => x.date === t);
+  const lowN = S.items.filter(isLow).length;
+  const last = usageStats().slice(0, 8);
+  // students served, last 14 days
+  const days = []; for (let i = 13; i >= 0; i--) days.push(addDays(t, -i));
+  const per = {}; S.meals.forEach(x => { per[x.date] = (per[x.date] || 0) + (+x.students || 0); });
+  const series = days.map(d => ({d, v: per[d] || 0}));
+  $('#main').innerHTML = `
+    <div class="card hero" style="margin-top:12px">
+      <div class="logo">${S.settings.logo ? `<img src="${esc(S.settings.logo)}" alt="">` : potIcon(28)}</div>
+      <div style="min-width:0"><h2>${esc(S.settings.schoolName || 'School Kitchen Store')}</h2><p>${esc(longDate(t))}${todayMeals.length ? ` · ${todayMeals.reduce((a, x) => a + (+x.students || 0), 0)} students served today` : ''}</p></div>
+      ${S.canWrite ? `<button class="btn" data-go="meals">${todayMeals.length ? '+ Add another meal' : "Enter today's meal"}</button>` : ''}
+    </div>
+    <div class="tiles">
+      <button class="tile" data-go="stock"><span>Items in store</span><b>${S.items.length}</b><small>tap to see stock</small></button>
+      <button class="tile ${lowN ? 'warn' : ''}" data-golow><span>Low or finished</span><b>${lowN}</b><small>${lowN ? 'need ordering' : 'all good'}</small></button>
+      <div class="tile"><span>Students served</span><b>${students.toLocaleString('en-IN')}</b><small>${esc(monthName(m))}</small></div>
+      <div class="tile"><span>Cooking days</span><b>${cookDays}</b><small>${esc(monthName(m))}</small></div>
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="card chart" id="c1"><h4>Students served</h4><p class="cap">Last 14 days</p>${columnChart(series)}</div>
+      <div class="card chart" id="c2"><h4>How long stock will last</h4><p class="cap">Based on average daily use in the last 30 days</p>
+        ${last.length ? last.map(x => {
+          const d = x.days, cls = d < 3 ? 'c' : d < 7 ? 'w' : '', w = Math.max(3, Math.min(100, d / 30 * 100));
+          const v = d >= 60 ? '60+ days' : d < 1 ? 'under 1 day' : '≈ ' + Math.floor(d) + (Math.floor(d) === 1 ? ' day' : ' days');
+          return `<div class="lastrow" data-tip="${esc(x.it.name)}: ${fmt(x.it.qty)} ${esc(x.it.unit)} left, about ${fmt(x.perDay)} ${esc(x.it.unit)} used per day"><div class="nm">${esc(x.it.name)}${cls === 'c' ? '<span class="flag c">Order now</span>' : cls === 'w' ? '<span class="flag w">Soon</span>' : ''}</div><div class="bar"><i class="${cls}" style="width:${w}%"></i></div><div class="val">${v}</div></div>`;
+        }).join('') : '<div class="empty" style="padding:24px 8px">Shows up after a few days of meals or − entries.</div>'}
+      </div>
+    </div>
+    <h3 class="sec">Recent activity <button class="linkbtn" data-go="history">See all</button></h3>
+    <div class="card">${S.logs.slice(0, 5).map(logRow).join('') || '<div class="empty">Nothing yet.</div>'}</div>`;
+  wireTips($('#c1')); wireTips($('#c2'));
+}
+function columnChart(series) {
+  const W = 340, H = 170, L = 30, B = 22, T = 8, max = Math.max(10, ...series.map(s => s.v));
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); for (const k of [1, 2, 2.5, 5, 10]) if (k * p >= max) return k * p; return 10 * p; })();
+  const cw = (W - L) / series.length, bw = Math.max(6, cw - 6);
+  let g = '';
+  for (let i = 0; i <= 4; i++) { const y = T + (H - B - T) * (1 - i / 4); g += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/><text x="${L - 6}" y="${y + 4}" text-anchor="end">${Math.round(nice * i / 4)}</text>`; }
+  series.forEach((s, i) => {
+    const x = L + i * cw + (cw - bw) / 2, h = s.v / nice * (H - B - T), y = H - B - h;
+    if (s.v > 0) g += `<path d="M${x},${H - B} V${y + 4} q0,-4 4,-4 h${bw - 8} q4,0 4,4 V${H - B} z" fill="var(--pri)"/>`;
+    g += `<rect x="${L + i * cw}" y="${T}" width="${cw}" height="${H - B - T}" fill="transparent" data-tip="${esc(niceDay(s.d))}: ${s.v ? s.v + ' students' : 'no meal entered'}"/>`;
+    if (i % 2 === (series.length - 1) % 2) g += `<text x="${L + i * cw + cw / 2}" y="${H - 6}" text-anchor="middle">${new Date(s.d + 'T00:00:00').getDate()}</text>`;
+  });
+  g += `<line x1="${L}" x2="${W}" y1="${H - B}" y2="${H - B}" stroke="var(--line)" stroke-width="1"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Students served per day, last 14 days">${g}</svg>`;
+}
+function wireTips(box) {
+  if (!box) return;
+  let tip = null;
+  const show = e => {
+    const r = e.target.closest('[data-tip]'); if (!r) { hide(); return; }
+    if (!tip) { tip = document.createElement('div'); tip.className = 'tip'; box.appendChild(tip); }
+    tip.textContent = r.dataset.tip;
+    const bb = box.getBoundingClientRect(), rb = r.getBoundingClientRect();
+    tip.style.left = Math.min(bb.width - 70, Math.max(70, rb.left - bb.left + rb.width / 2)) + 'px';
+    tip.style.top = (rb.top - bb.top + 40) + 'px';
+  };
+  const hide = () => { if (tip) { tip.remove(); tip = null; } };
+  box.addEventListener('mousemove', show); box.addEventListener('click', show); box.addEventListener('mouseleave', hide);
+}
+
+/* ---------- stock ---------- */
+function renderStock() {
+  if (loading()) { $('#main').innerHTML = '<div class="empty">Loading…</div>'; return; }
+  if (!S.items.length) {
+    $('#main').innerHTML = `<h2 class="h">Stock</h2><div class="card empty"><b>No items yet</b>Add the things your kitchen store keeps.<br><br>
+      ${S.canWrite ? `<button class="btn" id="first">+ Add item</button><br><br><button class="btn grey" id="starter">Add common items (rice, dal, oil…)</button><br><br><button class="btn grey" data-go="upload">Upload an Excel file</button>${S.isOwner ? '<br><br><label class="btn grey" for="impFile">Import backup file (.json)</label><input type="file" id="impFile" class="hide" accept=".json,application/json">' : ''}` : ''}</div>`;
+    return;
+  }
+  if (!$('#q')) {
+    $('#main').innerHTML = `<h2 class="h">Stock</h2><div class="toolbar"><input class="search" id="q" placeholder="Search item…" value="${esc(S.q)}" autocomplete="off">${S.canWrite ? '<button class="btn grey" data-go="upload" style="background:var(--card)">⤒ Upload</button>' : ''}</div><div id="alertBox"></div><div id="list" style="margin-top:12px"></div>`;
+    $('#q').addEventListener('input', e => { S.q = e.target.value; renderStock(); });
+  }
+  const lowN = S.items.filter(isLow).length;
+  $('#alertBox').innerHTML = lowN && !S.del ? `<button class="alert" id="lowBtn">${S.onlyLow ? '← Show all items' : `⚠ ${lowN} ${lowN === 1 ? 'item is' : 'items are'} low or finished — tap to see`}</button>` : '';
+  const q = S.q.trim().toLowerCase();
+  const list = S.items.filter(i => (!S.onlyLow || isLow(i)) && (!q || i.name.toLowerCase().includes(q))).sort((a, b) => a.name.localeCompare(b.name));
+  if (S.del) {
+    S.delSel = new Set([...S.delSel].filter(id => byId(id)));
+    const n = S.delSel.size, allOn = list.length && list.every(i => S.delSel.has(i.id));
+    $('#list').innerHTML = `<div class="delbar"><b>Tick the items to delete</b><button class="linkbtn" id="delAll">${allOn ? 'Untick all' : 'Tick all shown'}</button></div>
+    <div class="card" style="margin-top:10px">${list.map(it => `<label class="item delrow ${S.delSel.has(it.id) ? 'sel' : ''}">
+      <input type="checkbox" data-del="${esc(it.id)}" ${S.delSel.has(it.id) ? 'checked' : ''}>
+      <div class="info"><div class="name">${esc(it.name)}</div><div class="qty"><b>${fmt(it.qty)}</b> ${esc(it.unit)}</div></div>
+    </label>`).join('') || '<div class="empty">Nothing found.</div>'}</div>
+    <div class="sticky"><button class="btn grey" id="delCancel" style="background:var(--card)">Cancel</button><button class="btn red" id="delGo" ${n ? '' : 'disabled'}>${n ? `Delete ${n} ${n === 1 ? 'item' : 'items'}` : 'Tick items'}</button></div>`;
+    return;
+  }
+  $('#list').innerHTML = `<div class="card">${list.map(it => {
+    const zero = (+it.qty || 0) <= 0, low = isLow(it);
+    return `<div class="item ${zero ? 'zero' : low ? 'low' : ''}">
+      <button class="info" data-edit="${esc(it.id)}"><div class="name">${esc(it.name)}${zero ? '<span class="tag">Finished</span>' : low ? '<span class="tag">Low</span>' : ''}</div>
+      <div class="qty"><b>${fmt(it.qty)}</b> ${esc(it.unit)}${+it.minQty ? ` · min ${fmt(it.minQty)}` : ''}</div></button>
+      ${S.canWrite ? `<button class="pm minus" data-out="${esc(it.id)}" aria-label="Use">−</button><button class="pm plus" data-in="${esc(it.id)}" aria-label="Add">+</button>` : ''}
+    </div>`;
+  }).join('') || '<div class="empty">Nothing found.</div>'}</div>
+  ${S.canWrite ? `<p class="note">Tap <b>+</b> when stock comes in, <b>−</b> when some is used. Tap a name to edit it.</p>
+  <div style="text-align:center;margin-top:6px"><button class="btn grey" id="delMode">🗑 Delete items we don't need</button></div>` : ''}`;
+}
+
+/* ---------- history ---------- */
+function logRow(l) {
+  const plus = (l.delta || 0) >= 0;
+  const word = l.type === 'out' ? 'Used' : l.type === 'count' ? 'Corrected' : l.type === 'open' ? 'Opening stock' : l.type === 'undo' ? 'Meal cancelled' : 'Received';
+  return `<div class="log"><div style="min-width:0"><b>${esc(l.itemName)}</b><small>${word}${l.note ? ' · ' + esc(l.note) : ''} · ${l.date !== today() ? esc(niceDay(l.date)) + ', ' : ''}${time(l.at)}${l.by ? ' · <span class="who" data-uid="' + esc(l.by) + '"></span>' : ''}</small></div>
+    <div style="text-align:right;white-space:nowrap"><span class="${plus ? 'in' : 'out'}">${plus ? '+' : '−'}${fmt(Math.abs(l.delta))} ${esc(l.unit)}</span><small>left ${fmt(l.balance)}</small></div></div>`;
+}
+function renderHistory() {
+  if (!S.logs.length) { $('#main').innerHTML = '<h2 class="h">History</h2><div class="card empty"><b>Nothing yet</b>Every entry you make will show here.</div>'; return; }
+  let h = '<h2 class="h">History</h2>', day = '';
+  [...S.logs].sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.at - a.at).slice(0, 300).forEach(l => {
+    if (l.date !== day) { if (day) h += '</div>'; day = l.date; h += `<div class="day">${esc(niceDay(day))}</div><div class="card">`; }
+    h += logRow(l);
+  });
+  $('#main').innerHTML = h + '</div>';
+}
+async function names() {
+  if (!user) return;
+  const els = [...document.querySelectorAll('.who[data-uid]')]; if (!els.length) return;
+  const ps = await user.profiles([...new Set(els.map(e => e.dataset.uid))]);
+  els.forEach(e => { const p = ps[e.dataset.uid]; e.textContent = p ? (p.isMe ? 'you' : (p.name || '')) : ''; });
+}
+
+/* ---------- meals ---------- */
+const perUnit = u => /^(kg|kgs|kilo)/i.test(u || '') ? {lab: 'g', f: 1000} : /^(l|lt|ltr|litre|liter|litres)$/i.test(u || '') ? {lab: 'ml', f: 1000} : {lab: u || 'pcs', f: 1};
+function mealLines() {
+  const menu = menuById(M.menuId); if (!menu) return [];
+  const n = num(M.students);
+  return (menu.items || []).map(ing => {
+    const it = byId(ing.itemId); if (!it) return null;
+    const calc = n > 0 ? r3((+ing.per || 0) * n) : 0;
+    const over = M.over[it.id];
+    const qty = over !== undefined && over !== '' ? num(over) : calc;
+    return {it, per: +ing.per || 0, calc, qty: isNaN(qty) ? 0 : r3(qty), on: !M.off[it.id]};
+  }).filter(Boolean);
+}
+function mealWarn(l) { return l.on && l.qty > (+l.it.qty || 0) + 1e-9 ? `Only ${fmt(l.it.qty)} ${l.it.unit} in stock` : ''; }
+function renderMeals() {
+  if (loading()) { $('#main').innerHTML = '<div class="empty">Loading…</div>'; return; }
+  if (!M.menuId || !menuById(M.menuId)) M.menuId = S.menus.length ? [...S.menus].sort((a, b) => a.name.localeCompare(b.name))[0].id : '';
+  const menus = [...S.menus].sort((a, b) => a.name.localeCompare(b.name));
+  const recent = [...S.meals].sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.at - a.at).slice(0, 12);
+  let form;
+  if (!S.canWrite) form = '<div class="card empty">You can only view meals.</div>';
+  else if (!menus.length) form = `<div class="card pad"><h2>Set up your menus first</h2><p>A menu lists what goes into one meal and how much for each student. For example rice 100 g, dal 20 g and oil 5 ml per student. Then you only enter the number of students each day.</p>
+    <div class="btns"><button class="btn" id="stdMenus">Add standard school menus</button><button class="btn grey" id="newMenu">Make my own menu</button></div>
+    <p class="note" style="margin:10px 0 0">Standard menus follow PM POSHAN amounts per student. You can change them any time.</p></div>`;
+  else form = `<div class="card pad" id="mealForm">
+    <h2>Enter a meal</h2>
+    <label class="lbl">Date</label><input class="field" type="date" id="mDate" value="${esc(M.date)}" max="${today()}" style="font-size:16px">
+    <label class="lbl">Menu <button class="linkbtn" id="editMenu" style="float:right;margin-top:-4px">Edit this menu</button></label>
+    <div class="chips">${menus.map(m => `<button class="chip ${m.id === M.menuId ? 'on' : ''}" data-menu="${esc(m.id)}">${esc(m.name)}</button>`).join('')}<button class="chip add" id="newMenu">+ New menu</button></div>
+    <label class="lbl">Number of students who ate</label><input class="field big" id="mStudents" inputmode="numeric" value="${esc(M.students)}" placeholder="0" autocomplete="off">
+    <div id="mLines"></div>
+  </div>`;
+  $('#main').innerHTML = `<h2 class="h">Meals</h2><p class="sub">Enter the menu and number of students. The app works out what was used and takes it out of stock.</p>
+    ${form}
+    <h3 class="sec">Recent meals <span>${recent.length ? '' : 'none yet'}</span></h3>
+    ${recent.length ? `<div class="card">${recent.map(m => `<div class="mealrow">
+      <div class="d">${new Date(m.date + 'T00:00:00').getDate()}<small>${esc(new Date(m.date + 'T00:00:00').toLocaleDateString('en-IN', {month: 'short'}))}</small></div>
+      <div class="b"><b>${esc(m.menuName)}</b> · ${+m.students || 0} students<small>${esc((m.items || []).map(x => `${x.name} ${fmt(x.qty)} ${x.unit}`).join(', '))}</small></div>
+      ${S.canWrite ? `<button class="linkbtn r" data-undo="${esc(m.id)}">Undo</button>` : ''}
+    </div>`).join('')}</div>` : ''}
+    ${menus.length ? `<h3 class="sec">Menus <button class="linkbtn" id="newMenu2">+ New menu</button></h3>
+    <div class="card">${menus.map(m => `<div class="mealrow"><div class="b"><b>${esc(m.name)}</b><small>${esc((m.items || []).map(x => { const it = byId(x.itemId); if (!it) return ''; const u = perUnit(it.unit); return `${it.name} ${fmt(x.per * u.f)} ${u.lab}`; }).filter(Boolean).join(', '))} <i>per student</i></small></div>${S.canWrite ? `<button class="linkbtn" data-editmenu="${esc(m.id)}">Edit</button>` : ''}</div>`).join('')}</div>` : ''}`;
+  if ($('#mealForm')) {
+    renderMealLines();
+    $('#mDate').onchange = e => { if (e.target.value) M.date = e.target.value; };
+    $('#mStudents').addEventListener('input', e => { M.students = e.target.value.replace(/[^\d]/g, ''); M.over = {}; renderMealLines(); });
+  }
+}
+function renderMealLines() {
+  const box = $('#mLines'); if (!box) return;
+  const lines = mealLines(), n = num(M.students);
+  if (!lines.length) { box.innerHTML = `<p class="note">This menu has no items. Tap “Edit this menu” to add rice, dal and so on.</p>`; return; }
+  const bad = lines.some(mealWarn), onN = lines.filter(l => l.on && l.qty > 0).length;
+  box.innerHTML = `<label class="lbl">Will be taken from stock</label>
+    ${lines.map(l => `<div class="mline" style="${l.on ? '' : 'opacity:.45'}">
+      <div class="nm"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-moff="${esc(l.it.id)}" ${l.on ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--pri)">${esc(l.it.name)}</label></div>
+      <div class="meta">${fmt(l.per * perUnit(l.it.unit).f)} ${esc(perUnit(l.it.unit).lab)} each · in stock ${fmt(l.it.qty)} ${esc(l.it.unit)}</div>
+      <input inputmode="decimal" data-mover="${esc(l.it.id)}" value="${M.over[l.it.id] !== undefined ? esc(M.over[l.it.id]) : (n > 0 ? fmt(l.calc) : '')}" placeholder="0" aria-label="${esc(l.it.name)} amount in ${esc(l.it.unit)}">
+      ${mealWarn(l) ? `<div class="warn">${esc(mealWarn(l))}</div>` : ''}
+    </div>`).join('')}
+    <div class="mtotal"><span>Amounts are in each item's unit (kg, litre…)</span></div>
+    <div class="row2"><button class="btn" id="saveMeal" ${n > 0 && onN && !bad ? '' : 'disabled'}>${!(n > 0) ? 'Enter number of students' : bad ? 'Not enough stock' : `Save meal · ${n} students`}</button></div>`;
+  box.querySelectorAll('[data-mover]').forEach(inp => inp.addEventListener('input', () => {
+    M.over[inp.dataset.mover] = inp.value;
+    const l = mealLines().find(x => x.it.id === inp.dataset.mover);
+    const row = inp.closest('.mline'); let w = row.querySelector('.warn');
+    const msg = l ? mealWarn(l) : '';
+    if (msg && !w) { w = document.createElement('div'); w.className = 'warn'; row.appendChild(w); }
+    if (w) w.textContent = msg;
+    const all = mealLines(), b = $('#saveMeal'), bad2 = all.some(mealWarn);
+    b.disabled = !(num(M.students) > 0) || bad2 || !all.some(x => x.on && x.qty > 0);
+    b.textContent = !(num(M.students) > 0) ? 'Enter number of students' : bad2 ? 'Not enough stock' : `Save meal · ${num(M.students)} students`;
+  }));
+  box.querySelectorAll('[data-moff]').forEach(c => c.addEventListener('change', () => { if (c.checked) delete M.off[c.dataset.moff]; else M.off[c.dataset.moff] = true; renderMealLines(); }));
+  $('#saveMeal').onclick = saveMeal;
+}
+async function saveMeal() {
+  const menu = menuById(M.menuId), n = num(M.students);
+  const lines = mealLines().filter(l => l.on && l.qty > 0);
+  if (!menu || !(n > 0) || !lines.length || lines.some(mealWarn)) return;
+  const b = $('#saveMeal'); b.disabled = true; b.textContent = 'Saving…';
+  const mealId = newId('meals'), note = `${menu.name} · ${n} students`, done = [];
+  try {
+    for (const l of lines) { await change(l.it.id, 'out', l.qty, note, M.date, {mealId}); done.push({itemId: l.it.id, name: l.it.name, unit: l.it.unit, qty: l.qty}); }
+    await put('meals', {id: mealId, date: M.date, menuId: menu.id, menuName: menu.name, students: n, items: done, at: Date.now(), by: S.me || ''});
+    toast(`Saved: ${menu.name}, ${n} students`);
+    M.students = ''; M.over = {}; M.off = {};
+    $('#main').innerHTML = ''; render(true);
+  } catch (e) {
+    if (done.length) await put('meals', {id: mealId, date: M.date, menuId: menu.id, menuName: menu.name + ' (incomplete)', students: n, items: done, at: Date.now(), by: S.me || ''}).catch(() => {});
+    toast(e && e.message && !e.code ? e.message : 'Meal not fully saved. Check Recent meals.');
+    $('#main').innerHTML = ''; render(true);
+  }
+}
+function undoMeal(id) {
+  const m = S.meals.find(x => x.id === id); if (!m) return;
+  pop(`<h2>Undo this meal?</h2><p>${esc(m.menuName)} on ${esc(niceDay(m.date))}, ${+m.students || 0} students. The items used will be put back into stock.</p>
+    <div class="row2"><button class="btn grey" data-close>Cancel</button><button class="btn red" id="undoYes">Undo meal</button></div>`);
+  $('#undoYes').onclick = async () => {
+    $('#undoYes').disabled = true;
+    try {
+      for (const x of m.items || []) { if (byId(x.itemId)) await change(x.itemId, 'undo', +x.qty || 0, 'Cancelled: ' + m.menuName, m.date, {mealId: m.id}); }
+      await remove('meals', m.id);
+      close(); toast('Meal undone. Stock put back.'); $('#main').innerHTML = ''; render(true);
+    } catch { close(); }
+  };
+}
+function menuPopup(id) {
+  const m = id ? menuById(id) : null;
+  let rows = m ? (m.items || []).filter(x => byId(x.itemId)).map(x => ({itemId: x.itemId, val: fmt(x.per * perUnit(byId(x.itemId).unit).f)})) : [{itemId: '', val: ''}];
+  const items = [...S.items].sort((a, b) => a.name.localeCompare(b.name));
+  const draw = () => {
+    pop(`<h2>${m ? 'Edit menu' : 'New menu'}</h2>
+      <label class="lbl">Menu name</label><input class="field" id="mnName" value="${esc(m ? m.name : '')}" placeholder="e.g. Khichdi – Primary" autocomplete="off">
+      <label class="lbl">Items for ONE student</label>
+      <div id="ings">${rows.map((r, i) => { const it = byId(r.itemId); const u = perUnit(it ? it.unit : ''); return `<div class="ing" data-r="${i}">
+        <select data-k="itemId"><option value="">Choose item…</option>${items.map(x => `<option value="${esc(x.id)}" ${x.id === r.itemId ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+        <input inputmode="decimal" data-k="val" value="${esc(r.val)}" placeholder="0"><span>${it ? esc(u.lab) : ''}</span><button type="button" data-rm="${i}" aria-label="Remove">×</button></div>`; }).join('')}</div>
+      <button class="linkbtn" id="addIng" style="margin-top:10px">+ Add item</button>
+      <p class="note" style="margin:8px 0 0">Example: Rice 100 g, Toor dal 20 g, Cooking oil 5 ml, Eggs 1 pcs.</p>
+      <div class="row2"><button class="btn grey" data-close>Cancel</button><button class="btn" id="mnSave">Save menu</button></div>
+      ${m ? '<div class="row2"><button class="btn grey" id="mnDel" style="color:var(--red)">Delete menu</button></div>' : ''}`);
+    const grab = () => { document.querySelectorAll('#ings .ing').forEach(el => { const r = rows[+el.dataset.r]; r.itemId = el.querySelector('[data-k=itemId]').value; r.val = el.querySelector('[data-k=val]').value; }); };
+    $('#ings').addEventListener('change', e => { if (e.target.dataset.k === 'itemId') { const nm = $('#mnName').value; grab(); draw(); $('#mnName').value = nm; } });
+    $('#ings').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; const nm = $('#mnName').value; grab(); rows.splice(+b.dataset.rm, 1); if (!rows.length) rows.push({itemId: '', val: ''}); draw(); $('#mnName').value = nm; });
+    $('#addIng').onclick = () => { const nm = $('#mnName').value; grab(); rows.push({itemId: '', val: ''}); draw(); $('#mnName').value = nm; };
+    $('#mnSave').onclick = async () => {
+      grab();
+      const name = $('#mnName').value.trim(); if (!name) return toast('Give the menu a name');
+      const seen = new Set(), list = [];
+      for (const r of rows) {
+        const it = byId(r.itemId), v = num(r.val);
+        if (!it || !(v > 0) || seen.has(it.id)) continue;
+        seen.add(it.id); list.push({itemId: it.id, per: r3(v / perUnit(it.unit).f * 1000) / 1000});
+      }
+      if (!list.length) return toast('Add at least one item with an amount');
+      try { await put('menus', {id: m ? m.id : newId('menus'), name, items: list, updatedAt: Date.now()}); close(); toast('Menu saved'); $('#main').innerHTML = ''; render(true); } catch {}
+    };
+    if (m) $('#mnDel').onclick = async () => { try { await remove('menus', m.id); if (M.menuId === m.id) M.menuId = ''; close(); toast('Menu deleted'); $('#main').innerHTML = ''; render(true); } catch {} };
+  };
+  draw();
+}
+const STD_MENUS = [
+  ['Rice, dal & vegetables – Primary', [['Rice','kg',.1],['Toor dal','kg',.02],['Potatoes','kg',.05],['Cooking oil','litre',.005],['Salt','kg',.002],['Turmeric','kg',.0005]]],
+  ['Rice, dal & vegetables – Upper primary', [['Rice','kg',.15],['Toor dal','kg',.03],['Potatoes','kg',.075],['Cooking oil','litre',.0075],['Salt','kg',.003],['Turmeric','kg',.00075]]],
+  ['Khichdi – Primary', [['Rice','kg',.1],['Moong dal','kg',.02],['Potatoes','kg',.05],['Cooking oil','litre',.005],['Salt','kg',.002],['Turmeric','kg',.0005]]],
+  ['Egg curry & rice – Primary', [['Rice','kg',.1],['Eggs','pcs',1],['Onions','kg',.02],['Cooking oil','litre',.005],['Salt','kg',.002]]]
+];
+async function addStdMenus() {
+  const b = $('#stdMenus'); if (b) { b.disabled = true; b.textContent = 'Adding…'; }
+  try {
+    const made = [];
+    const find = name => S.items.find(i => i.name.toLowerCase() === name.toLowerCase()) || made.find(i => i.name.toLowerCase() === name.toLowerCase()) || findMatch(name);
+    for (const [, ings] of STD_MENUS) for (const [name, unit] of ings) {
+      if (!find(name)) { const at = Date.now(), it = {id: newId(), name, unit, qty: 0, minQty: 0, category: '', expiry: '', location: '', createdAt: at, updatedAt: at}; await saveItem(it); made.push(it); }
+    }
+    for (const [mname, ings] of STD_MENUS) {
+      await put('menus', {id: newId('menus'), name: mname, items: ings.map(([name, , per]) => ({itemId: find(name).id, per})), updatedAt: Date.now()});
+    }
+    toast(made.length ? `4 menus added. ${made.length} new items were added to Stock.` : '4 menus added');
+    $('#main').innerHTML = ''; render(true);
+  } catch { if (b) { b.disabled = false; b.textContent = 'Add standard school menus'; } }
+}
+
+/* ---------- reports ---------- */
+async function logsBetween(from, to) {
+  if (db) {
+    const snap = await db.collection('logs').where('date', '>=', from).limit(1000).get();
+    return {rows: snap.docs.map(d => d.data()), capped: snap.size >= 1000};
+  }
+  return {rows: S.logs.filter(l => l.date >= from), capped: false};
+}
+async function mealsBetween(from, to) {
+  if (db) { const snap = await db.collection('meals').where('date', '>=', from).where('date', '<=', to).limit(1000).get(); return snap.docs.map(d => d.data()); }
+  return S.meals.filter(m => m.date >= from && m.date <= to);
+}
+async function loadReport() {
+  const m = S.month, from = m + '-01', to = lastDay(m);
+  S.report = null; if (S.tab === 'reports') renderReports();
+  try {
+    const [{rows, capped}, meals] = await Promise.all([logsBetween(from, to), mealsBetween(from, to)]);
+    const R = {};
+    S.items.forEach(it => R[it.id] = {id: it.id, name: it.name, unit: it.unit, rec: 0, used: 0, after: 0, now: +it.qty || 0});
+    const daily = {}, usedIds = new Set();
+    rows.forEach(l => {
+      const r = R[l.itemId]; if (!r) return;
+      if (l.date > to) { r.after += +l.delta || 0; return; }
+      if (l.type === 'in') r.rec += +l.delta || 0;
+      else if (l.type === 'out' || l.type === 'undo') {
+        r.used -= +l.delta || 0;
+        daily[l.date] = daily[l.date] || {};
+        daily[l.date][l.itemId] = r3((daily[l.date][l.itemId] || 0) - (+l.delta || 0));
+        usedIds.add(l.itemId);
+      }
+    });
+    const stock = Object.values(R).map(r => { const end = r3(r.now - r.after); return {...r, rec: r3(r.rec), used: r3(r.used), end, open: r3(end - r.rec + r.used)}; }).sort((a, b) => a.name.localeCompare(b.name));
+    const studentsBy = {}, menusBy = {};
+    meals.forEach(x => { studentsBy[x.date] = (studentsBy[x.date] || 0) + (+x.students || 0); (menusBy[x.date] = menusBy[x.date] || []).push(x.menuName); });
+    const dates = [...new Set([...Object.keys(daily), ...Object.keys(studentsBy)])].filter(d => d >= from && d <= to).sort();
+    const cols = stock.filter(r => usedIds.has(r.id));
+    S.report = {month: m, stock, capped, daily: {dates, cols, cells: daily, students: studentsBy, menus: menusBy}};
+  } catch { S.report = {error: true}; }
+  if (S.tab === 'reports') renderReports();
+}
+function renderReports() {
+  const R = S.report;
+  let body;
+  if (!R) body = '<div class="card empty">Working it out…</div>';
+  else if (R.error) body = '<div class="card empty">Could not load. Check internet.</div>';
+  else {
+    const D = R.daily, totStud = D.dates.reduce((a, d) => a + (D.students[d] || 0), 0);
+    body = `<div class="card">
+      <div class="rephead"><div><h4>Monthly stock register</h4><p>Opening, received, used and closing stock for ${esc(monthName(R.month))}</p></div>
+      <div class="btns" style="margin:0"><button class="btn sm" data-dl="stock-pdf">PDF</button><button class="btn sm grey" data-dl="stock-xlsx">Excel</button></div></div>
+      <div class="tablewrap"><table><thead><tr><th>Item</th><th>Opening</th><th>Received</th><th>Used</th><th>Closing</th></tr></thead><tbody>
+      ${R.stock.map(r => `<tr><td><b>${esc(r.name)}</b> <span style="color:var(--muted);font-size:13px">${esc(r.unit)}</span></td><td>${fmt(r.open)}</td><td class="in">${r.rec ? fmt(r.rec) : '–'}</td><td class="out">${r.used ? fmt(r.used) : '–'}</td><td><b>${fmt(r.end)}</b></td></tr>`).join('') || '<tr><td colspan="5">No items.</td></tr>'}
+      </tbody></table></div></div>
+      ${R.capped ? '<p class="note">This month has over 1,000 entries; some totals may be incomplete.</p>' : ''}
+      <div class="card" style="margin-top:12px">
+      <div class="rephead"><div><h4>Daily consumption register</h4><p>Students served and items used each day · ${D.dates.length} days, ${totStud.toLocaleString('en-IN')} students</p></div>
+      <div class="btns" style="margin:0"><button class="btn sm" data-dl="daily-pdf" ${D.dates.length ? '' : 'disabled'}>PDF</button><button class="btn sm grey" data-dl="daily-xlsx" ${D.dates.length ? '' : 'disabled'}>Excel</button></div></div>
+      ${D.dates.length ? `<div class="tablewrap"><table><thead><tr><th>Date</th><th>Students</th>${D.cols.map(c => `<th>${esc(c.name)}<br><span style="font-weight:600">${esc(c.unit)}</span></th>`).join('')}</tr></thead><tbody>
+        ${D.dates.map(d => `<tr><td><b>${esc(shortDate(d))}</b></td><td>${D.students[d] || '–'}</td>${D.cols.map(c => `<td>${D.cells[d] && D.cells[d][c.id] ? fmt(D.cells[d][c.id]) : '–'}</td>`).join('')}</tr>`).join('')}
+        </tbody><tfoot><tr><td>Total</td><td>${totStud}</td>${D.cols.map(c => `<td>${fmt(D.dates.reduce((a, d) => a + ((D.cells[d] || {})[c.id] || 0), 0))}</td>`).join('')}</tr></tfoot></table></div>` : '<div class="empty" style="padding:20px">No meals or − entries this month.</div>'}
+      </div>
+      <div class="btns"><button class="btn grey" id="copyLow" style="background:var(--card)">Share shopping list</button></div>
+      <p class="note">“Opening” is the stock at the start of the month. “Closing” is the stock at the end of the month (or now, for this month). Downloads include your school name${S.settings.logo ? ', logo' : ''} and signature lines.</p>`;
+  }
+  $('#main').innerHTML = `<h2 class="h">Reports</h2><div class="month"><b>Month</b><input type="month" id="month" value="${esc(S.month)}" max="${today().slice(0, 7)}"></div><div style="margin-top:12px">${body}</div>`;
+  $('#month').addEventListener('change', e => { if (e.target.value) { S.month = e.target.value; loadReport(); } });
+}
+
+/* ---------- downloads (PDF / Excel) ---------- */
+const PDFLIB = ['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js'];
+async function offerFile(filename, data) {
+  if (dl) {
+    try { await dl.save({filename, data}); toast('Downloaded ' + filename); return; }
+    catch (e) {
+      if (e && e.code === 'declined') return;
+      if (e && e.code === 'rate_limited') return toast('Please wait a moment and try again.');
+    }
+  }
+  try {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(data instanceof Blob ? data : new Blob([data])); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove(); toast('Downloaded ' + filename);
+  } catch { toast('Downloading is not available here.'); }
+}
+function regTables(kind) {
+  const R = S.report, D = R.daily;
+  if (kind === 'stock') return {
+    title: 'Monthly Stock Register', head: ['S.No', 'Item', 'Unit', 'Opening', 'Received', 'Total', 'Used', 'Closing'],
+    body: R.stock.map((r, i) => [i + 1, r.name, r.unit, fmt(r.open), fmt(r.rec), fmt(r.open + r.rec), fmt(r.used), fmt(r.end)]), foot: null
+  };
+  const tot = D.cols.map(c => fmt(D.dates.reduce((a, d) => a + ((D.cells[d] || {})[c.id] || 0), 0)));
+  return {
+    title: 'Daily Consumption Register', head: ['Date', 'Menu', 'Students', ...D.cols.map(c => `${c.name} (${c.unit})`)],
+    body: D.dates.map(d => [shortDate(d), (D.menus[d] || []).join(' + '), D.students[d] || 0, ...D.cols.map(c => D.cells[d] && D.cells[d][c.id] ? fmt(D.cells[d][c.id]) : '')]),
+    foot: ['Total', '', D.dates.reduce((a, d) => a + (D.students[d] || 0), 0), ...tot]
+  };
+}
+async function downloadReport(which) {
+  if (!S.report || !S.report.stock) return;
+  const [kind, fmtType] = which.split('-'), T = regTables(kind), m = S.report.month;
+  const school = S.settings.schoolName || 'School Kitchen Store', addr = S.settings.address || '';
+  const fname = `${T.title} ${monthName(m)}`.replace(/[^\w\- ]+/g, '');
+  toast('Preparing ' + (fmtType === 'pdf' ? 'PDF' : 'Excel') + '…');
+  try {
+    if (fmtType === 'xlsx') {
+      await loadScript(CDN.xlsx);
+      const aoa = [[school], ...(addr ? [[addr]] : []), [`${T.title} – ${monthName(m)}`], [], T.head, ...T.body, ...(T.foot ? [T.foot] : []), [], [], ['Prepared by (Cook)', '', '', 'MDM In-charge', '', '', 'Head Teacher']];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws['!cols'] = T.head.map((h, i) => ({wch: i === 1 || (kind === 'daily' && i > 2) ? Math.max(12, String(h).length + 2) : 11}));
+      if (kind === 'stock') ws['!cols'][1] = {wch: 26};
+      ws['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: T.head.length - 1}}];
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, kind === 'stock' ? 'Stock register' : 'Daily register');
+      const out = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+      return offerFile(fname + '.xlsx', new Blob([out], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    }
+    for (const u of PDFLIB) await loadScript(u);
+    const wide = T.head.length > 8;
+    const doc = new window.jspdf.jsPDF({orientation: wide ? 'landscape' : 'portrait', unit: 'mm', format: 'a4'});
+    const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+    let x = 14;
+    if (S.settings.logo) { try { doc.addImage(S.settings.logo, 'PNG', 14, 10, 18, 18); x = 36; } catch {} }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(school, x, 17);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(90); if (addr) doc.text(addr, x, 23);
+    doc.setTextColor(20); doc.setFont('helvetica', 'bold'); doc.setFontSize(12.5); doc.text(`${T.title} – ${monthName(m)}`, 14, 37);
+    doc.setDrawColor(31, 111, 74); doc.setLineWidth(0.6); doc.line(14, 40, W - 14, 40);
+    doc.autoTable({
+      startY: 44, head: [T.head], body: T.body, foot: T.foot ? [T.foot] : undefined, showFoot: 'lastPage', theme: 'grid',
+      headStyles: {fillColor: [31, 111, 74], textColor: 255, fontStyle: 'bold', halign: 'center', valign: 'middle', fontSize: wide ? 7.5 : 9},
+      footStyles: {fillColor: [228, 241, 234], textColor: 20, fontStyle: 'bold', halign: 'right'},
+      styles: {fontSize: wide ? 7.5 : 9.5, cellPadding: wide ? 1.6 : 2.2, lineColor: [200, 200, 200], lineWidth: 0.15, halign: 'right'},
+      columnStyles: kind === 'stock' ? {0: {halign: 'center', cellWidth: 12}, 1: {halign: 'left'}, 2: {halign: 'center'}} : {0: {halign: 'left'}, 1: {halign: 'left', cellWidth: wide ? 34 : 40}},
+      margin: {left: 14, right: 14},
+      didDrawPage: d => { doc.setFontSize(8); doc.setTextColor(120); doc.text(`Generated on ${shortDate(today())} · Page ${doc.internal.getNumberOfPages()}`, 14, H - 8); doc.setTextColor(20); }
+    });
+    let y = doc.lastAutoTable.finalY + 26;
+    if (y > H - 22) { doc.addPage(); y = 40; }
+    const labels = ['Prepared by (Cook)', 'MDM In-charge', 'Head Teacher'], gap = (W - 28) / 3;
+    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+    labels.forEach((l, i) => { const lx = 14 + i * gap; doc.line(lx + 4, y, lx + gap - 8, y); doc.text(l, lx + 4, y + 5); });
+    offerFile(fname + '.pdf', doc.output('blob'));
+  } catch (e) { toast(e && e.message === 'load' ? 'Could not load the report maker. Check internet.' : 'Could not make the file. Please try again.'); }
+}
+
+/* ---------- popups ---------- */
+function pop(html) { $('#pop').innerHTML = `<div class="scrim" data-scrim><div class="sheet">${html}</div></div>`; }
+function close() { $('#pop').innerHTML = ''; }
+$('#pop').addEventListener('click', e => { if (e.target.matches('[data-scrim]') || e.target.closest('[data-close]')) close(); });
+function qtyPopup(id, type) {
+  const it = byId(id); if (!it) return;
+  const isIn = type === 'in';
+  pop(`<h2>${isIn ? 'Stock received' : 'Used in kitchen'}</h2>
+    <p>${esc(it.name)} · now ${fmt(it.qty)} ${esc(it.unit)}</p>
+    <form id="f">
+      <label class="lbl">How much? (${esc(it.unit)})</label>
+      <input class="field big" id="amt" inputmode="decimal" placeholder="0" autocomplete="off" required>
+      <label class="lbl">Note (optional)</label>
+      <input class="field" id="note" placeholder="${isIn ? 'e.g. supplier, bill no.' : 'e.g. lunch'}">
+      <div class="row2"><button type="button" class="btn grey" data-close>Cancel</button><button class="btn ${isIn ? '' : 'red'}" type="submit">${isIn ? 'Add' : 'Remove'}</button></div>
+    </form>`);
+  setTimeout(() => $('#amt')?.focus(), 80);
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    const a = num($('#amt').value); if (!(a > 0)) return toast('Enter a number');
+    if (e.submitter) e.submitter.disabled = true;
+    try { const q = await change(id, type, a, $('#note').value.trim()); close(); toast(`${it.name}: ${fmt(q)} ${it.unit} left`); if (!db) render(true); }
+    catch (err) { if (!err.code) toast(err.message); if (e.submitter) e.submitter.disabled = false; }
+  };
+}
+function itemPopup(id) {
+  const it = id ? byId(id) : null;
+  if (id && (!it || !S.canWrite)) return;
+  let unit = it ? it.unit : 'kg';
+  pop(`<h2>${it ? 'Edit item' : 'New item'}</h2>
+    <form id="f">
+      <label class="lbl">Item name</label>
+      <input class="field" id="nm" value="${esc(it ? it.name : '')}" placeholder="e.g. Rice" required autocomplete="off">
+      <label class="lbl">Measured in</label>
+      <div class="units" id="units">${[...new Set([...UNITS, unit])].map(u => `<button type="button" data-u="${esc(u)}" class="${u === unit ? 'on' : ''}">${esc(u)}</button>`).join('')}</div>
+      ${it ? '' : `<label class="lbl">How much is in the store now?</label><input class="field" id="qt" inputmode="decimal" placeholder="0">`}
+      <label class="lbl">Warn me when it goes below <span style="color:var(--muted);font-weight:600">(optional)</span></label>
+      <input class="field" id="mn" inputmode="decimal" value="${it && +it.minQty ? fmt(it.minQty) : ''}" placeholder="e.g. 10">
+      <div class="row2"><button type="button" class="btn grey" data-close>Cancel</button><button class="btn" type="submit">Save</button></div>
+      ${it ? `<div class="row2"><button type="button" class="btn grey" id="fix">Correct the quantity</button><button type="button" class="btn grey" id="del" style="color:var(--red)">Delete item</button></div>` : ''}
+    </form>`);
+  if (!it) setTimeout(() => $('#nm')?.focus(), 80);
+  $('#units').onclick = e => { const b = e.target.closest('[data-u]'); if (!b) return; unit = b.dataset.u; $('#units').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); };
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    const name = $('#nm').value.trim(); if (!name) return;
+    if (S.items.some(x => x.id !== id && x.name.toLowerCase() === name.toLowerCase())) return toast('This item is already in the list');
+    const mn = num($('#mn').value), minQty = mn > 0 ? r3(mn) : 0;
+    try {
+      if (it) { await saveItem({...it, name, unit, minQty, updatedAt: Date.now()}); toast('Saved'); }
+      else {
+        const q = num($('#qt').value), qty = q > 0 ? r3(q) : 0, nid = newId(), at = Date.now();
+        await saveItem({id: nid, name, unit, qty, minQty, category: '', expiry: '', location: '', createdAt: at, updatedAt: at});
+        if (qty > 0) await addLog({itemId: nid, itemName: name, unit, type: 'open', delta: qty, balance: qty, date: today(), note: 'Starting stock', at, by: S.me || ''});
+        toast(name + ' added');
+      }
+      close(); if (!db) render(true);
+    } catch {}
+  };
+  if (it) {
+    $('#fix').onclick = () => fixPopup(id);
+    $('#del').onclick = () => {
+      pop(`<h2>Delete ${esc(it.name)}?</h2><p>It will be removed from the list. Old history stays.</p>
+        <div class="row2"><button class="btn grey" data-close>Cancel</button><button class="btn red" id="yes">Delete</button></div>`);
+      $('#yes').onclick = async () => { try { await delItem(id); close(); toast('Deleted'); if (!db) render(true); } catch {} };
+    };
+  }
+}
+function fixPopup(id) {
+  const it = byId(id);
+  pop(`<h2>Correct quantity</h2><p>${esc(it.name)} · app says ${fmt(it.qty)} ${esc(it.unit)}</p>
+    <form id="f"><label class="lbl">How much is actually on the shelf? (${esc(it.unit)})</label>
+    <input class="field big" id="amt" inputmode="decimal" value="${fmt(it.qty)}" required>
+    <div class="row2"><button type="button" class="btn grey" data-close>Cancel</button><button class="btn" type="submit">Save</button></div></form>`);
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    const a = num($('#amt').value); if (isNaN(a) || a < 0) return toast('Enter a number');
+    const delta = r3(a - (+it.qty || 0)); if (!delta) return close();
+    try {
+      const at = Date.now();
+      await saveItem({...it, qty: r3(a), updatedAt: at});
+      await addLog({itemId: id, itemName: it.name, unit: it.unit, type: 'count', delta, balance: r3(a), date: today(), note: 'Shelf check', at, by: S.me || ''});
+      close(); toast('Quantity corrected'); if (!db) render(true);
+    } catch {}
+  };
+}
+function settingsPopup() {
+  if (!S.canWrite) return;
+  let logo = S.settings.logo || '';
+  const draw = () => {
+    const nm = $('#sn') ? $('#sn').value : S.settings.schoolName || '', ad = $('#sa') ? $('#sa').value : S.settings.address || '';
+    pop(`<h2>School details</h2><p>Shown on the app and printed on reports.</p>
+      <form id="f">
+        <label class="lbl">School name</label><input class="field" id="sn" value="${esc(nm)}" placeholder="e.g. Govt. Primary School, Ward 4">
+        <label class="lbl">Address / UDISE code <span style="color:var(--muted);font-weight:600">(optional)</span></label><input class="field" id="sa" value="${esc(ad)}" placeholder="e.g. Village, Block, District · UDISE 1234567890">
+        <label class="lbl">School logo <span style="color:var(--muted);font-weight:600">(optional)</span></label>
+        <div class="logoedit"><div class="logo">${logo ? `<img src="${esc(logo)}" alt="">` : potIcon(26)}</div>
+          <label class="btn grey sm" for="lf">${logo ? 'Change' : 'Choose image'}</label>${logo ? '<button type="button" class="linkbtn r" id="lrm">Remove</button>' : ''}
+          <input type="file" id="lf" accept="image/*" class="hide"></div>
+        <div class="row2"><button type="button" class="btn grey" data-close>Cancel</button><button class="btn" type="submit">Save</button></div>
+      </form>`);
+    $('#lf').onchange = async e => { const f = e.target.files[0]; if (!f) return; const d = await shrinkLogo(f); if (d) { logo = d; draw(); } else toast('Could not open this image'); };
+    if ($('#lrm')) $('#lrm').onclick = () => { logo = ''; draw(); };
+    $('#f').onsubmit = async e => { e.preventDefault(); try { await saveSettings({...S.settings, schoolName: $('#sn').value.trim(), address: $('#sa').value.trim(), logo}); close(); toast('Saved'); if (!db) render(true); } catch {} };
+  };
+  draw();
+}
+async function shrinkLogo(f) {
+  try {
+    const bmp = await createImageBitmap(f), s = 192, c = document.createElement('canvas'); c.width = c.height = s;
+    const k = Math.max(s / bmp.width, s / bmp.height), w = bmp.width * k, h = bmp.height * k, g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, s, s); g.drawImage(bmp, (s - w) / 2, (s - h) / 2, w, h);
+    return c.toDataURL('image/png');
+  } catch { return null; }
+}
+async function copy(text, label) {
+  try { await navigator.clipboard.writeText(text); toast(label + ' copied – paste it in WhatsApp'); }
+  catch { pop(`<h2>Copy ${esc(label)}</h2><p>Select all and copy.</p><textarea class="field" readonly>${esc(text)}</textarea><div class="row2"><button class="btn" data-close>Done</button></div>`); setTimeout(() => $('textarea').select(), 60); }
+}
+const csv = rows => rows.map(r => r.map(c => { c = String(c ?? ''); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(',')).join('\n');
+const APP = !!window.AndroidApp;
+
+/* ---------- upload ---------- */
+let sample = null, imgMax = 0;
+const U = {stage: 'pick', hint: 'auto', msg: '', rows: [], date: today(), file: '', ctl: null, note: ''};
+const CDN = {
+  xlsx: APP ? 'xlsx.full.min.js' : 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  pdf: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+  pdfw: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+};
+const loaded = {};
+function loadScript(src) {
+  if (!loaded[src]) loaded[src] = new Promise((ok, no) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => { delete loaded[src]; no(new Error('load')); }; document.head.appendChild(s); });
+  return loaded[src];
+}
+const HINTS = [['auto', 'Not sure'], ['opening', 'Opening stock'], ['received', 'Received'], ['used', 'Used / consumption']];
+const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9ऀ-ॿ]+/g, ' ').trim();
+function findMatch(name) {
+  const n = norm(name); if (!n) return null;
+  let it = S.items.find(i => norm(i.name) === n); if (it) return it;
+  const w = n.split(' ')[0];
+  it = S.items.find(i => { const m = norm(i.name); return m.includes(n) || n.includes(m) || (w.length > 3 && m.split(' ')[0] === w); });
+  return it || null;
+}
+const numOrNull = v => { if (v === null || v === undefined || v === '') return null; const n = num(String(v).replace(/[^\d.,-]/g, '')); return isNaN(n) ? null : r3(n); };
+
+function renderUpload() {
+  const m = $('#main');
+  if (!S.canWrite) { m.innerHTML = '<div id="up" class="card empty">You can only view this list.</div>'; return; }
+  if (U.stage === 'reading') {
+    m.innerHTML = `<div id="up" class="card pad" style="text-align:center"><div class="spin"></div><h2>Reading ${esc(U.file)}…</h2><p>${esc(U.note || 'This can take up to a minute.')}</p><br><button class="btn grey" id="ustop">Stop</button></div>`;
+    $('#ustop').onclick = () => { U.ctl && U.ctl.abort(); };
+    return;
+  }
+  if (U.stage === 'review') return renderReview();
+  const canAI = !!sample, canImg = canAI && imgMax > 0;
+  m.innerHTML = `<h2 class="h"><button class="linkbtn" data-go="stock" style="font-size:15px;padding:0 6px 0 0">← Stock</button></h2><div id="up" class="card pad">
+    <h2>Upload a file</h2>
+    <p>${canImg ? 'Take a photo of your stock register or bill, or choose a PDF or Excel file.' : 'Choose an Excel or CSV file.'} The app finds the items and amounts. You check them before anything is saved.</p>
+    <label class="lbl" style="margin-top:16px">What does the file show?</label>
+    <div class="units" id="uhint">${HINTS.map(([k, l]) => `<button type="button" data-h="${k}" class="${U.hint === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <p class="note" style="margin:8px 0 0">If a register has opening, received and used columns, all three are read.</p>
+    <label class="drop" for="ufile"><b>${canImg ? '📷 Photo, PDF or Excel' : '📄 Choose Excel file'}</b>Tap to choose${canImg ? ' or take a photo' : ''}</label>
+    <input type="file" id="ufile" class="hide" ${canImg ? 'multiple' : ''} accept="${canImg ? 'image/*,.pdf,application/pdf,' : ''}.xlsx,.xls,.csv,.ods">
+    ${false ? `<p class="note">${S.mode === 'local' ? 'Photos and PDFs can be read when you open the app from its shared link.' : 'Photos and PDFs need permission to ask Claude. Reload the page and choose Allow when asked.'}</p>` : ''}
+    ${U.msg ? `<div class="err">${esc(U.msg)}</div>` : ''}
+  </div>
+  ${S.mode === 'local' ? `<div class="card pad">
+    <h2>Backup</h2>
+    <p>Your data is kept only on this ${APP ? 'phone' : 'device'}. Save a backup file every week, so nothing is lost if the phone is changed or reset.</p>
+    <p class="note" style="margin:8px 0 0">Last backup: ${esc(LS.get('lastBackup', '') ? niceDay(LS.get('lastBackup', '')) : 'never')}</p>
+    <div class="row2"><button class="btn" id="bkSave">Save backup</button><label class="btn grey" for="bkFile" style="text-align:center">Restore</label></div>
+    <input type="file" id="bkFile" class="hide" accept=".json,application/json">
+  </div>` : ''}`;
+  if ($('#bkSave')) {
+    $('#bkSave').onclick = () => {
+      const data = JSON.stringify({app: 'kitchen-store', version: 1, saved: new Date().toISOString(), items: S.items, logs: S.logs, meals: S.meals, menus: S.menus, settings: S.settings});
+      const name = `kitchen-store-backup-${today()}.json`;
+      if (APP) { try { window.AndroidApp.saveFile(name, 'application/json', data); LS.set('lastBackup', today()); return; } catch {} }
+      try {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type: 'application/json'})); a.download = name; a.click();
+        LS.set('lastBackup', today()); toast('Backup saved');
+      } catch { copy(data, 'Backup'); }
+    };
+    $('#bkFile').onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      let d; try { d = JSON.parse(await f.text()); } catch { return toast('This is not a backup file'); }
+      if (!d || d.app !== 'kitchen-store' || !Array.isArray(d.items)) return toast('This is not a Kitchen Store backup file');
+      pop(`<h2>Restore backup?</h2><p>This replaces everything on this ${APP ? 'phone' : 'device'} with the backup from ${esc(String(d.saved || '').slice(0, 10))} (${d.items.length} items).</p>
+        <div class="row2"><button class="btn grey" data-close>Cancel</button><button class="btn red" id="rsYes">Replace</button></div>`);
+      $('#rsYes').onclick = () => {
+        S.items = d.items; S.logs = Array.isArray(d.logs) ? d.logs : []; S.meals = Array.isArray(d.meals) ? d.meals : []; S.menus = Array.isArray(d.menus) ? d.menus : []; S.settings = d.settings || {schoolName: ''};
+        ['items', 'logs', 'meals', 'menus', 'settings'].forEach(k => LS.set(k, S[k]));
+        close(); toast('Backup restored'); S.tab = 'stock'; $('#main').innerHTML = ''; render(true);
+      };
+    };
+  }
+  $('#uhint').onclick = e => { const b = e.target.closest('[data-h]'); if (!b) return; U.hint = b.dataset.h; $('#uhint').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); };
+  $('#ufile').onchange = e => { const fs = [...e.target.files]; if (fs.length) handleFiles(fs); };
+}
+
+async function handleFiles(files) {
+  const f = files[0], ext = (f.name.split('.').pop() || '').toLowerCase();
+  const isX = ['xlsx', 'xls', 'csv', 'ods'].includes(ext);
+  const isPdf = ext === 'pdf' || f.type === 'application/pdf';
+  const imgs = files.filter(x => x.type.startsWith('image/') || /\.(jpe?g|png|webp|heic|heif)$/i.test(x.name));
+  U.msg = ''; U.file = files.length > 1 && imgs.length === files.length ? `${files.length} photos` : f.name;
+  U.stage = 'reading'; U.note = ''; renderUpload();
+  try {
+    let data;
+    if (isX) {
+      const sheets = await readExcel(f);
+      if (sample) {
+        try { data = await askClaude(sheetsText(sheets), []); }
+        catch (e) { if (e && e.code === 'cancelled') throw e; data = localParse(sheets); }
+      } else data = localParse(sheets);
+    } else if (isPdf) {
+      if (!sample || !imgMax) throw {mine: 'Reading PDFs is not available here. Please use an Excel file, or open the app from its shared link.'};
+      U.note = 'Opening the PDF…'; renderUpload();
+      const {blobs, text, total} = await pdfToImages(f, Math.min(imgMax, 5));
+      U.note = total > blobs.length ? `Reading the first ${blobs.length} of ${total} pages. This can take up to a minute.` : 'This can take up to a minute.'; renderUpload();
+      data = await askClaude(text.trim() ? 'Text found in the PDF (may be incomplete):\n' + text.slice(0, 40000) : '', blobs);
+    } else if (imgs.length) {
+      if (!sample || !imgMax) throw {mine: 'Reading photos is not available here. Please use an Excel file, or open the app from its shared link.'};
+      const blobs = []; for (const x of imgs.slice(0, imgMax)) blobs.push(await toJpeg(x));
+      data = await askClaude('', blobs);
+    } else throw {mine: 'This file type is not supported. Use a photo, PDF, Excel or CSV file.'};
+    setRows(data);
+  } catch (e) {
+    U.stage = 'pick';
+    U.msg = e && e.mine ? e.mine : e && e.code === 'cancelled' ? '' : errText(e);
+    renderUpload();
+  }
+}
+function errText(e) {
+  const c = e && e.code;
+  if (c === 'not_granted' || c === 'sampling_disabled') return 'Permission to read the file was not given. Excel files can still be read.';
+  if (c === 'rate_limited') return 'Too many files read just now. Please wait a few minutes and try again.';
+  if (c === 'image_rejected') return 'This photo could not be opened. Try taking the photo again.';
+  if (c === 'invalid_json' || c === 'empty_completion' || c === 'refused') return 'Could not read the file clearly. Try a clearer, well-lit photo of the page.';
+  if (e && e.message === 'load') return 'Could not load the file reader. Check your internet connection.';
+  return 'Could not read this file. Please try again.';
+}
+
+async function readExcel(f) {
+  await loadScript(CDN.xlsx);
+  const wb = XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true});
+  return wb.SheetNames.map(n => ({name: n, rows: XLSX.utils.sheet_to_json(wb.Sheets[n], {header: 1, raw: false, defval: ''}).filter(r => r.some(c => String(c).trim()))}));
+}
+const sheetsText = sheets => sheets.map(s => `Sheet "${s.name}":\n` + s.rows.slice(0, 400).map(r => r.map(c => String(c).trim()).join(' | ')).join('\n')).join('\n\n').slice(0, 60000);
+
+function localParse(sheets) {
+  const rx = {
+    name: /item|name|particular|commodit|descri|material|product|article|ingredient|सामग्री|वस्तु|नाम/i,
+    unit: /^\s*(unit|uom|units)\s*$/i,
+    opening: /open|previous|prev|b\s*\/\s*f|brought|old stock|प्रारंभिक|शेष पिछला/i,
+    received: /receiv|rec'?d|rcvd|purchas|suppl|inward|\bin\b|प्राप्त/i,
+    used: /consum|used|issue|utili|expend|\bout\b|खपत|उपयोग/i,
+    qty: /qty|quantity|stock|balance|मात्रा/i
+  };
+  const out = [];
+  for (const s of sheets) {
+    const hi = s.rows.slice(0, 15).findIndex(r => r.some(c => rx.name.test(c)));
+    if (hi < 0) continue;
+    const h = s.rows[hi].map(c => String(c));
+    const col = k => h.findIndex(c => c.trim() && rx[k].test(c) && !/rate|price|amount|cost|value|₹|rs\.?/i.test(c));
+    const ci = {name: h.findIndex(c => rx.name.test(c)), unit: col('unit'), opening: col('opening'), received: col('received'), used: col('used'), qty: col('qty')};
+    if (ci.qty >= 0 && [ci.opening, ci.received, ci.used].includes(ci.qty)) ci.qty = -1;
+    if (ci.opening < 0 && ci.received < 0 && ci.used < 0 && ci.qty < 0) continue;
+    const plain = U.hint === 'auto' ? 'received' : U.hint;
+    for (const r of s.rows.slice(hi + 1)) {
+      const name = String(r[ci.name] || '').trim();
+      if (!name || /^total|grand total|कुल/i.test(name) || /^\d+$/.test(name)) continue;
+      const row = {name, unit: ci.unit >= 0 ? String(r[ci.unit] || '').trim() || null : null, opening: null, received: null, used: null, match: null};
+      for (const k of ['opening', 'received', 'used']) if (ci[k] >= 0) row[k] = numOrNull(r[ci[k]]);
+      if (ci.qty >= 0 && row[plain] == null) row[plain] = numOrNull(r[ci.qty]);
+      if (row.opening != null || row.received != null || row.used != null) out.push(row);
+    }
+  }
+  if (!out.length) throw {mine: 'Could not find item names and quantities in this file. Make sure it has a column for the item name and a column for the quantity.'};
+  return {date: null, rows: out};
+}
+
+async function pdfToImages(f, max) {
+  await loadScript(CDN.pdfw); await loadScript(CDN.pdf);
+  pdfjsLib.GlobalWorkerOptions.workerSrc = CDN.pdfw;
+  const pdf = await pdfjsLib.getDocument({data: new Uint8Array(await f.arrayBuffer())}).promise;
+  const n = Math.min(pdf.numPages, max), blobs = []; let text = '';
+  for (let i = 1; i <= n; i++) {
+    const page = await pdf.getPage(i);
+    try { const tc = await page.getTextContent(); text += tc.items.map(x => x.str).join(' ') + '\n'; } catch {}
+    const v1 = page.getViewport({scale: 1}), sc = Math.min(2.5, 1800 / Math.max(v1.width, v1.height)), vp = page.getViewport({scale: sc});
+    const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    await page.render({canvasContext: ctx, viewport: vp}).promise;
+    blobs.push(await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.88)));
+  }
+  return {blobs, text, total: pdf.numPages};
+}
+async function toJpeg(f) {
+  try {
+    const bmp = await createImageBitmap(f);
+    const sc = Math.min(1, 2200 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas'); c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise(ok => c.toBlob(b => ok(b || f), 'image/jpeg', 0.9));
+  } catch { return f; }
+}
+
+async function askClaude(extraText, images) {
+  const existing = S.items.map(i => `${i.name} (${i.unit})`).join('; ') || '(none yet)';
+  const hintLine = U.hint === 'auto'
+    ? 'If a quantity column does not say what it is, decide from the document: a bill, invoice or delivery note means "received"; a consumption, usage or issue register means "used"; a stock list or stock-taking sheet means "opening".'
+    : `The person says this file shows ${U.hint === 'used' ? 'quantities USED / consumed' : U.hint === 'opening' ? 'OPENING STOCK' : 'stock RECEIVED'}. Put any plain quantity column in "${U.hint}".`;
+  const prompt = `You are reading a document for a school kitchen store (for example a stock register, a supplier bill, a consumption register, or a handwritten list). It may be in English, Hindi or another Indian language, printed or handwritten.
+
+Extract every store item (food, provisions, gas, cleaning supplies) with its quantities.
+For each item give:
+- "name": the item name in simple English (for example "Toor dal", "Rice", "Cooking oil")
+- "unit": kg, litre, pcs, packet, dozen or bag, or null if not shown
+- "opening": opening stock / previous balance, or null
+- "received": quantity received / purchased / supplied, or null
+- "used": quantity consumed / used / issued, or null
+- "match": if this is the same item as one in EXISTING ITEMS, that item's exact name; otherwise null
+
+Rules:
+- Quantities only. Ignore rate, price, amount and money columns, serial numbers, and total rows.
+- ${hintLine}
+- If a register has several dates, add up each item's received and used over all dates, and take opening from the earliest date.
+- Use the unit of the matching existing item when you can, converting if needed (for example 500 g becomes 0.5 kg).
+- If you cannot read a number, use null. Do not guess.
+- "date": the document's date as YYYY-MM-DD if shown, otherwise null.
+
+EXISTING ITEMS: ${existing}
+
+${extraText ? extraText + '\n\n' : ''}${images.length ? `The ${images.length > 1 ? images.length + ' attached images are pages' : 'attached image is the document'}.\n\n` : ''}Reply with only JSON in this shape:
+{"date":"2026-11-05","rows":[{"name":"Rice","unit":"kg","opening":120,"received":50,"used":30,"match":"Rice"}]}`;
+  U.ctl = new AbortController();
+  const opts = {signal: U.ctl.signal};
+  if (images.length) opts.images = images;
+  return await sample.json(prompt, opts);
+}
+
+function setRows(data) {
+  const rows = (data && Array.isArray(data.rows)) ? data.rows : [];
+  U.rows = rows.map(r => {
+    const name = String(r.name || '').trim(); if (!name) return null;
+    let it = r.match ? S.items.find(i => norm(i.name) === norm(r.match)) : null;
+    if (!it) it = findMatch(name);
+    return {on: true, name, unit: r.unit ? String(r.unit).trim() : '', opening: numOrNull(r.opening), received: numOrNull(r.received), used: numOrNull(r.used), matchId: it ? it.id : 'new'};
+  }).filter(r => r && (r.opening != null || r.received != null || r.used != null));
+  const d = data && typeof data.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.date) && data.date <= today() ? data.date : today();
+  U.date = d;
+  if (!U.rows.length) { U.stage = 'pick'; U.msg = 'No items with quantities were found in this file.'; return renderUpload(); }
+  U.stage = 'review'; renderUpload(); window.scrollTo(0, 0);
+}
+
+function checkRows() {
+  const run = {};
+  return U.rows.map(r => {
+    if (!r.on) return '';
+    const it = r.matchId === 'new' ? null : byId(r.matchId);
+    const key = r.matchId === 'new' ? 'new:' + norm(r.name) : r.matchId;
+    let q = key in run ? run[key] : (it ? +it.qty || 0 : 0);
+    if (r.opening != null) q = r.opening;
+    q += (r.received || 0) - (r.used || 0);
+    run[key] = q;
+    if (q < -1e-9) return `Used is more than the stock available. Check the numbers.`;
+    if (r.opening == null && r.received == null && r.used == null) return 'Enter at least one number.';
+    return '';
+  });
+}
+function rowInfo(r) {
+  const it = r.matchId === 'new' ? null : byId(r.matchId);
+  const unit = it ? it.unit : (r.unit || 'kg');
+  let q = it ? +it.qty || 0 : 0;
+  if (r.opening != null) q = r.opening;
+  q = r3(q + (r.received || 0) - (r.used || 0));
+  return it ? `Now ${fmt(it.qty)} ${unit} → after saving ${fmt(q)} ${unit}` : `New item · will have ${fmt(q)} ${unit}`;
+}
+function renderReview() {
+  const opts = S.items.slice().sort((a, b) => a.name.localeCompare(b.name));
+  const warns = checkRows();
+  const n = U.rows.filter(r => r.on).length;
+  $('#main').innerHTML = `<div id="up">
+    <div class="card pad"><h2>Check before saving</h2><p>Found ${U.rows.length} ${U.rows.length === 1 ? 'item' : 'items'} in ${esc(U.file)}. Fix any wrong numbers, and untick rows you don't want.</p>
+    <label class="lbl">Date of these entries</label><input class="field" type="date" id="udate" value="${esc(U.date)}" max="${today()}" style="font-size:16px"></div>
+    <div class="card">${U.rows.map((r, i) => `<div class="urow ${r.on ? '' : 'off'}" data-i="${i}">
+      <div class="uhead"><input type="checkbox" data-k="on" ${r.on ? 'checked' : ''} aria-label="Include"><div class="nm">${esc(r.name)}</div></div>
+      <select data-k="matchId">
+        <option value="new" ${r.matchId === 'new' ? 'selected' : ''}>➕ Add as new item: ${esc(r.name)}${r.unit ? ' (' + esc(r.unit) + ')' : ''}</option>
+        ${opts.map(it => `<option value="${esc(it.id)}" ${r.matchId === it.id ? 'selected' : ''}>Same as: ${esc(it.name)} (${esc(it.unit)})</option>`).join('')}
+      </select>
+      <div class="nums">
+        <label>Opening<input inputmode="decimal" data-k="opening" value="${r.opening ?? ''}" placeholder="–"></label>
+        <label>Received<input inputmode="decimal" data-k="received" value="${r.received ?? ''}" placeholder="–"></label>
+        <label>Used<input inputmode="decimal" data-k="used" value="${r.used ?? ''}" placeholder="–"></label>
+      </div>
+      <div class="uinfo">${esc(rowInfo(r))}</div>
+      <div class="uwarn">${esc(warns[i])}</div>
+    </div>`).join('')}</div>
+    <p class="note">Opening sets the stock to that amount. Received adds to it. Used takes away from it.</p>
+    <div class="sticky"><button class="btn grey" id="ucancel" style="background:var(--card)">Cancel</button><button class="btn" id="usave">Save ${n} ${n === 1 ? 'item' : 'items'}</button></div>
+  </div>`;
+  updateReview();
+  $('#udate').onchange = e => { if (e.target.value) U.date = e.target.value; };
+  $('#ucancel').onclick = () => { U.stage = 'pick'; U.rows = []; renderUpload(); };
+  $('#usave').onclick = applyUpload;
+  const box = $('#up');
+  const onEdit = e => {
+    const el = e.target, k = el.dataset.k; if (!k) return;
+    const row = el.closest('[data-i]'); const r = U.rows[+row.dataset.i];
+    if (k === 'on') { r.on = el.checked; row.classList.toggle('off', !r.on); }
+    else if (k === 'matchId') r.matchId = el.value;
+    else r[k] = numOrNull(el.value);
+    row.querySelector('.uinfo').textContent = rowInfo(r);
+    updateReview();
+  };
+  box.addEventListener('input', onEdit); box.addEventListener('change', onEdit);
+}
+function updateReview() {
+  const warns = checkRows();
+  document.querySelectorAll('#up [data-i]').forEach(row => { row.querySelector('.uwarn').textContent = warns[+row.dataset.i]; });
+  const n = U.rows.filter(r => r.on).length, bad = warns.some(w => w);
+  const b = $('#usave'); b.disabled = !n || bad;
+  b.textContent = bad ? 'Fix the rows in red' : `Save ${n} ${n === 1 ? 'item' : 'items'}`;
+}
+async function applyUpload() {
+  const b = $('#usave'); b.disabled = true; b.textContent = 'Saving…';
+  const run = {}, created = {};
+  let done = 0;
+  try {
+    for (const r of U.rows) {
+      if (!r.on) continue;
+      let it;
+      if (r.matchId === 'new') {
+        const key = norm(r.name);
+        if (created[key]) it = created[key];
+        else {
+          const at = Date.now(), unit = r.unit || 'kg';
+          const exists = S.items.find(i => norm(i.name) === key);
+          it = exists || {id: newId(), name: r.name, unit, qty: 0, minQty: 0, category: '', expiry: '', location: '', createdAt: at, updatedAt: at};
+          if (!exists) await saveItem(it);
+          created[key] = it;
+        }
+      } else it = byId(r.matchId);
+      if (!it) continue;
+      let qty = it.id in run ? run[it.id] : (+it.qty || 0);
+      const logs = [];
+      if (r.opening != null) { const d = r3(r.opening - qty); qty = r3(r.opening); logs.push({type: 'open', delta: d, balance: qty, note: 'Opening stock'}); }
+      if (r.received) { qty = r3(qty + r.received); logs.push({type: 'in', delta: r3(r.received), balance: qty, note: 'Received'}); }
+      if (r.used) { qty = r3(qty - r.used); logs.push({type: 'out', delta: r3(-r.used), balance: qty, note: 'Used'}); }
+      if (!logs.length) continue;
+      await saveItem({...it, qty, updatedAt: Date.now()});
+      run[it.id] = qty; created[norm(it.name)] && (created[norm(it.name)] = {...it, qty});
+      for (const l of logs) await addLog({itemId: it.id, itemName: it.name, unit: it.unit, ...l, note: l.note + ' · from ' + U.file, date: U.date, at: Date.now(), by: S.me || ''});
+      done++;
+    }
+    toast(`Saved ${done} ${done === 1 ? 'item' : 'items'} from the file`);
+    U.stage = 'pick'; U.rows = []; U.msg = '';
+    S.tab = 'stock'; $('#main').innerHTML = ''; render(true);
+  } catch {
+    b.disabled = false; b.textContent = 'Try saving again';
+    toast(done ? `Saved ${done} items, then stopped. Check the stock list before trying again.` : 'Not saved. Check internet and try again.');
+  }
+}
+
+
+/* ---------- clicks ---------- */
+document.addEventListener('click', async e => {
+  const t = e.target; let el;
+  if ((el = t.closest('[data-tab]'))) return go(el.dataset.tab);
+  if ((el = t.closest('[data-go]'))) return go(el.dataset.go);
+  if (t.closest('[data-golow]')) { S.onlyLow = true; return go('stock'); }
+  if ((el = t.closest('[data-in]'))) return qtyPopup(el.dataset.in, 'in');
+  if ((el = t.closest('[data-out]'))) return qtyPopup(el.dataset.out, 'out');
+  if ((el = t.closest('[data-edit]'))) return itemPopup(el.dataset.edit);
+  if ((el = t.closest('[data-menu]'))) { M.menuId = el.dataset.menu; M.over = {}; M.off = {}; $('#main').innerHTML = ''; return render(true); }
+  if ((el = t.closest('[data-editmenu]'))) return menuPopup(el.dataset.editmenu);
+  if ((el = t.closest('[data-undo]'))) return undoMeal(el.dataset.undo);
+  if ((el = t.closest('[data-dl]'))) return downloadReport(el.dataset.dl);
+  if (t.closest('#editMenu')) return menuPopup(M.menuId);
+  if (t.closest('#newMenu') || t.closest('#newMenu2')) { if (!S.items.length) return toast('Add items to Stock first'); return menuPopup(); }
+  if (t.closest('#stdMenus')) return addStdMenus();
+  if (t.closest('#addbtn') || t.closest('#first')) return itemPopup();
+  if (t.closest('#lowBtn')) { S.onlyLow = !S.onlyLow; return renderStock(); }
+  if (t.closest('#titleBtn') || t.closest('#logoBtn') || t.closest('#setBtn')) return settingsPopup();
+  if (t.closest('#delMode')) { S.del = true; S.delSel = new Set(); window.scrollTo(0, 0); return render(true); }
+  if (t.closest('#delCancel')) { S.del = false; S.delSel = new Set(); return render(true); }
+  if (t.closest('#delGo')) return deleteSelected();
+  if (t.closest('#delAll')) {
+    const q = S.q.trim().toLowerCase();
+    const shown = S.items.filter(i => (!S.onlyLow || isLow(i)) && (!q || i.name.toLowerCase().includes(q)));
+    const allOn = shown.every(i => S.delSel.has(i.id));
+    shown.forEach(i => allOn ? S.delSel.delete(i.id) : S.delSel.add(i.id));
+    return renderStock();
+  }
+  if (t.closest('#starter')) {
+    t.disabled = true; t.textContent = 'Adding…';
+    try { for (const [name, unit, minQty] of STARTER) { if (!S.items.some(x => x.name.toLowerCase() === name.toLowerCase())) await saveItem({id: newId(), name, unit, qty: 0, minQty, category: '', expiry: '', location: '', createdAt: Date.now(), updatedAt: Date.now()}); }
+      toast('Added. Now tap + to enter how much you have.'); $('#main').innerHTML = ''; render(true); } catch {}
+    return;
+  }
+  if (t.closest('#copyLow')) {
+    const low = S.items.filter(isLow).sort((a, b) => a.name.localeCompare(b.name));
+    if (!low.length) return toast('Nothing is low right now');
+    return copy(`${S.settings.schoolName || 'Kitchen'} – to buy:\n` + low.map(i => `• ${i.name} (have ${fmt(i.qty)} ${i.unit})`).join('\n'), 'Shopping list');
+  }
+});
+document.addEventListener('change', e => {
+  const c = e.target.closest('[data-del]'); if (!c) return;
+  c.checked ? S.delSel.add(c.dataset.del) : S.delSel.delete(c.dataset.del);
+  renderStock();
+});
+async function deleteSelected() {
+  const ids = [...S.delSel].filter(id => byId(id)); if (!ids.length) return;
+  const nms = ids.map(id => byId(id).name);
+  pop(`<h2>Delete ${ids.length} ${ids.length === 1 ? 'item' : 'items'}?</h2>
+    <p>${esc(nms.slice(0, 8).join(', '))}${nms.length > 8 ? ` and ${nms.length - 8} more` : ''}</p>
+    <p>They will be removed from the stock list. Their old entries stay in History.</p>
+    <div class="row2"><button class="btn grey" data-close>Cancel</button><button class="btn red" id="delYes">Delete</button></div>`);
+  $('#delYes').onclick = async () => {
+    const b = $('#delYes'); b.disabled = true; b.textContent = 'Deleting…';
+    let done = 0;
+    for (const id of ids) { try { await delItem(id); done++; } catch { break; } }
+    close(); S.del = false; S.delSel = new Set();
+    toast(done === ids.length ? `Deleted ${done} ${done === 1 ? 'item' : 'items'}` : `Deleted ${done} of ${ids.length}. Check internet and try again.`);
+    $('#main').innerHTML = ''; render(true);
+  };
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+window.appBack = () => {
+  if ($('#pop').innerHTML) { close(); return true; }
+  if (S.del) { S.del = false; S.delSel = new Set(); render(true); return true; }
+  if (S.tab === 'upload' && U.stage === 'review') { U.stage = 'pick'; U.rows = []; renderUpload(); return true; }
+  if (S.tab !== 'home') { go(S.tab === 'upload' ? 'stock' : 'home'); return true; }
+  return false;
+};
+
+
+/* ---------- Firebase: sign-in, access, sync ---------- */
+let auth = null, fbUser = null, unsubs = [];
+S.access = null; S.isOwner = false;
+const GLOGO = '<svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+const myEmail = () => (fbUser && fbUser.email || '').toLowerCase();
+
+// Writes: don't make people wait for the server (offline works); report late failures.
+function fsw(p) {
+  return new Promise((res, rej) => {
+    let settled = false;
+    const t = setTimeout(() => { settled = true; res(); }, 1500);
+    p.then(() => { if (!settled) { clearTimeout(t); settled = true; res(); } },
+      e => { if (!settled) { clearTimeout(t); settled = true; rej(e); } else toast(e && e.code === 'permission-denied' ? 'A change was refused: your Gmail does not have access.' : 'A change could not be saved. Check internet.'); });
+  });
+}
+function names() {
+  document.querySelectorAll('.who[data-uid]').forEach(e => { const b = e.dataset.uid || ''; e.textContent = b.includes('@') ? b.split('@')[0] : ''; });
+}
+function gate(html) {
+  document.body.classList.add('gated');
+  $('#title').textContent = S.settings.schoolName || 'Kitchen Store';
+  $('#subtitle').textContent = 'School kitchen inventory';
+  $('#logoBtn').innerHTML = logoHTML(); $('#status').textContent = '';
+  $('#main').innerHTML = `<div class="card pad gate"><div class="logo">${potIcon(34)}</div>${html}</div>`;
+}
+function showLogin(msg) {
+  gate(`<h2>Kitchen Store</h2><p>Sign in with your Google (Gmail) account to see and update the kitchen stock.</p>
+    <button class="gbtn" id="gsign">${GLOGO}Sign in with Google</button>
+    ${msg ? `<div class="err" style="text-align:left">${esc(msg)}</div>` : ''}`);
+  $('#gsign').onclick = signIn;
+}
+async function signIn() {
+  const p = new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt: 'select_account'});
+  try { await auth.signInWithPopup(p); }
+  catch (e) {
+    const c = e && e.code;
+    if (c === 'auth/popup-blocked' || c === 'auth/operation-not-supported-in-this-environment' || c === 'auth/web-storage-unsupported') { try { await auth.signInWithRedirect(p); return; } catch (e2) { e = e2; } }
+    if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return;
+    if (c === 'auth/unauthorized-domain') return showLogin('This website is not yet allowed in Firebase. Add it under Authentication → Settings → Authorized domains.');
+    if (c === 'auth/network-request-failed') return showLogin('No internet connection. Connect and try again.');
+    showLogin('Sign-in did not work. Please try again. (' + (c || 'error') + ')');
+  }
+}
+async function signOut() { try { await auth.signOut(); } catch {} location.reload(); }
+function showClaim() {
+  gate(`<h2>Set up your kitchen store</h2><p>You are signed in as</p><div class="email">${esc(myEmail())}</div>
+    <p style="margin-top:14px">This Gmail will be the <b>owner</b>. Only people you add later can open the store.</p>
+    <div class="row2"><button class="btn grey" id="other">Use another account</button><button class="btn" id="claim">Set up</button></div>`);
+  $('#other').onclick = signOut;
+  $('#claim').onclick = async () => {
+    $('#claim').disabled = true;
+    try { await db.doc('config/access').set({owner: myEmail(), staff: [], createdAt: Date.now()}); await checkAccess(); }
+    catch (e) { toast(e && e.code === 'permission-denied' ? 'Someone has already set up this store.' : 'Could not set up. Check internet.'); await checkAccess(); }
+  };
+}
+function showDenied() {
+  gate(`<h2>Ask for access</h2><p>You are signed in as</p><div class="email">${esc(myEmail())}</div>
+    <p style="margin-top:14px">Ask the kitchen store owner to add this Gmail in <b>⚙ Settings → Staff</b>. Then tap “Check again”.</p>
+    <div class="row2"><button class="btn grey" id="other">Use another account</button><button class="btn" id="again">Check again</button></div>`);
+  $('#other').onclick = signOut; $('#again').onclick = () => checkAccess();
+}
+async function checkAccess() {
+  gate('<p>Checking access…</p>');
+  let snap;
+  try { snap = await db.doc('config/access').get(); }
+  catch (e) {
+    if (e && e.code === 'permission-denied') return showLogin('Firebase security rules are not set up yet. Paste the rules from the setup guide.');
+    return gate(`<h2>Can't connect</h2><p>Check your internet connection.</p><div class="row2"><button class="btn" id="again">Try again</button></div>`), ($('#again').onclick = () => checkAccess());
+  }
+  if (!snap.exists) return showClaim();
+  const a = snap.data(), me = myEmail();
+  if (a.owner !== me && !(a.staff || []).includes(me)) return showDenied();
+  S.access = a; S.isOwner = a.owner === me;
+  startApp();
+}
+function startApp() {
+  if (unsubs.length) return;
+  document.body.classList.remove('gated');
+  S.mode = 'cloud'; S.me = myEmail(); S.canWrite = true; S.loaded = false;
+  $('#main').innerHTML = ''; render(true);
+  const t = setTimeout(() => { if (!S.loaded) $('#main').innerHTML = '<div class="empty">Still loading… check your internet connection.</div>'; }, 12000);
+  const keep = () => { const a = document.activeElement; return a && a.id === 'q'; };
+  const lost = e => { if (e && e.code === 'permission-denied') { toast('Your access was removed.'); setTimeout(() => location.reload(), 1500); } };
+  unsubs.push(db.collection('items').onSnapshot(s => {
+    S.items = s.docs.map(d => ({id: d.id, ...d.data()})); S.loaded = true; clearTimeout(t);
+    if (S.tab === 'stock' && !keep()) $('#main').innerHTML = '';
+    render();
+  }, lost));
+  unsubs.push(db.collection('logs').orderBy('at', 'desc').limit(800).onSnapshot(s => { S.logs = s.docs.map(d => ({id: d.id, ...d.data()})); if (S.tab === 'history' || S.tab === 'home') render(); }, lost));
+  unsubs.push(db.collection('meals').orderBy('at', 'desc').limit(300).onSnapshot(s => { S.meals = s.docs.map(d => ({id: d.id, ...d.data()})); if (S.tab === 'home' || S.tab === 'meals') render(); }, lost));
+  unsubs.push(db.collection('menus').onSnapshot(s => { S.menus = s.docs.map(d => ({id: d.id, ...d.data()})); if (S.tab === 'meals') { $('#main').innerHTML = ''; render(true); } }, lost));
+  unsubs.push(db.doc('settings/main').onSnapshot(s => { S.settings = {schoolName: '', ...(s.exists ? s.data() : {})}; render(); }, lost));
+  unsubs.push(db.doc('config/access').onSnapshot(s => {
+    if (!s.exists) return;
+    const a = s.data(), me = myEmail();
+    if (a.owner !== me && !(a.staff || []).includes(me)) { toast('Your access was removed.'); setTimeout(() => location.reload(), 1500); return; }
+    S.access = a; S.isOwner = a.owner === me;
+    if ($('#staffList')) drawStaff();
+  }, () => {}));
+}
+
+/* ---------- settings: school, account, staff, backup ---------- */
+function settingsPopup() {
+  if (document.body.classList.contains('gated')) return;
+  let logo = S.settings.logo || '';
+  const draw = () => {
+    const nm = $('#sn') ? $('#sn').value : S.settings.schoolName || '', ad = $('#sa') ? $('#sa').value : S.settings.address || '';
+    pop(`<h2>Settings</h2>
+      <form id="f">
+        <label class="lbl">School name</label><input class="field" id="sn" value="${esc(nm)}" placeholder="e.g. Govt. Primary School, Ward 4">
+        <label class="lbl">Address / UDISE code <span style="color:var(--muted);font-weight:600">(optional)</span></label><input class="field" id="sa" value="${esc(ad)}" placeholder="e.g. Village, Block, District · UDISE 1234567890">
+        <label class="lbl">School logo <span style="color:var(--muted);font-weight:600">(optional)</span></label>
+        <div class="logoedit"><div class="logo">${logo ? `<img src="${esc(logo)}" alt="">` : potIcon(26)}</div>
+          <label class="btn grey sm" for="lf">${logo ? 'Change' : 'Choose image'}</label>${logo ? '<button type="button" class="linkbtn r" id="lrm">Remove</button>' : ''}
+          <input type="file" id="lf" accept="image/*" class="hide"></div>
+        <div class="row2"><button class="btn" type="submit">Save school details</button></div>
+      </form>
+      ${S.isOwner ? `<div class="sect"><label class="lbl">Staff who can use the app</label>
+        <p style="font-size:14px">Add each person's Gmail address. They sign in with Google and can then make entries.</p>
+        <div id="staffList"></div>
+        <div class="addstaff"><input class="field" id="newStaff" type="email" inputmode="email" placeholder="name@gmail.com" autocomplete="off"><button class="btn" id="addStaff" type="button">Add</button></div></div>
+      <div class="sect"><label class="lbl">Backup</label><p style="font-size:14px">Download all data as a file, or bring data in from a backup file.</p>
+        <div class="btns"><button class="btn grey sm" id="expBtn" type="button">Download backup</button><label class="btn grey sm" for="impFile">Import backup</label><input type="file" id="impFile" class="hide" accept=".json,application/json"></div></div>` : ''}
+      <div class="sect"><label class="lbl">Account</label><p style="font-size:14px">Signed in as <b>${esc(myEmail())}</b>${S.isOwner ? ' (owner)' : ''}</p>
+        <div class="row2"><button class="btn grey" id="soBtn" type="button">Sign out</button><button class="btn grey" type="button" data-close>Close</button></div></div>`);
+    $('#lf').onchange = async e => { const f = e.target.files[0]; if (!f) return; const d = await shrinkLogo(f); if (d) { logo = d; draw(); } else toast('Could not open this image'); };
+    if ($('#lrm')) $('#lrm').onclick = () => { logo = ''; draw(); };
+    $('#f').onsubmit = async e => { e.preventDefault(); try { await saveSettings({...S.settings, schoolName: $('#sn').value.trim(), address: $('#sa').value.trim(), logo}); toast('Saved'); } catch {} };
+    $('#soBtn').onclick = signOut;
+    if (S.isOwner) {
+      drawStaff();
+      $('#addStaff').onclick = addStaff;
+      $('#newStaff').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addStaff(); } });
+      $('#expBtn').onclick = exportAll;
+    }
+  };
+  draw();
+}
+function drawStaff() {
+  const a = S.access || {staff: []}, box = $('#staffList'); if (!box) return;
+  box.innerHTML = `<div class="staff"><span>${esc(a.owner)}</span><small>Owner</small></div>` +
+    (a.staff || []).map(m => `<div class="staff"><span>${esc(m)}</span><button class="linkbtn r" type="button" data-rmstaff="${esc(m)}">Remove</button></div>`).join('');
+  box.querySelectorAll('[data-rmstaff]').forEach(b => b.onclick = async () => {
+    const list = (S.access.staff || []).filter(x => x !== b.dataset.rmstaff);
+    try { await safe(() => fsw(db.doc('config/access').update({staff: list}))); S.access = {...S.access, staff: list}; drawStaff(); toast('Removed'); } catch {}
+  });
+}
+async function addStaff() {
+  const v = $('#newStaff').value.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return toast('Type a full Gmail address, like name@gmail.com');
+  const list = [...new Set([...(S.access.staff || []), v])];
+  if (v === S.access.owner || list.length === (S.access.staff || []).length) return toast('Already added');
+  try { await safe(() => fsw(db.doc('config/access').update({staff: list}))); S.access = {...S.access, staff: list}; $('#newStaff').value = ''; drawStaff(); toast(v + ' can now sign in'); } catch {}
+}
+async function exportAll() {
+  toast('Preparing backup…');
+  try {
+    const out = {app: 'kitchen-store', version: 2, saved: new Date().toISOString()};
+    for (const c of ['items', 'logs', 'meals', 'menus']) { const s = await db.collection(c).get(); out[c] = s.docs.map(d => ({id: d.id, ...d.data()})); }
+    const st = await db.doc('settings/main').get(); out.settings = st.exists ? st.data() : {};
+    offerFile(`kitchen-store-backup-${today()}.json`, new Blob([JSON.stringify(out)], {type: 'application/json'}));
+  } catch { toast('Could not make the backup. Check internet.'); }
+}
+async function importBackup(f) {
+  let d; try { d = JSON.parse(await f.text()); } catch { return toast('This is not a backup file'); }
+  if (!d || d.app !== 'kitchen-store' || !Array.isArray(d.items)) return toast('This is not a Kitchen Store backup file');
+  const cols = ['items', 'logs', 'meals', 'menus'], n = cols.reduce((a, c) => a + (Array.isArray(d[c]) ? d[c].length : 0), 0);
+  pop(`<h2>Import backup?</h2><p>${d.items.length} items and ${(d.logs || []).length} history entries${d.saved ? ' from ' + esc(String(d.saved).slice(0, 10)) : ''}. Items with the same name already here are updated, nothing is deleted.</p>
+    <div class="row2"><button class="btn grey" data-close>Cancel</button><button class="btn" id="impYes">Import</button></div>`);
+  $('#impYes').onclick = async () => {
+    const b = $('#impYes'); b.disabled = true;
+    try {
+      const ops = [];
+      cols.forEach(c => (d[c] || []).forEach(o => { if (o && o.id) { const {id, ...x} = o; ops.push([c, String(id), x]); } }));
+      if (d.settings && d.settings.schoolName && !S.settings.schoolName) ops.push(['settings', 'main', {...S.settings, ...d.settings}]);
+      for (let i = 0; i < ops.length; i += 400) {
+        b.textContent = `Importing ${Math.min(i + 400, ops.length)} of ${ops.length}…`;
+        const batch = db.batch();
+        ops.slice(i, i + 400).forEach(([c, id, x]) => batch.set(db.collection(c).doc(id), x));
+        await batch.commit();
+      }
+      close(); toast(`Imported ${d.items.length} items`); go('stock');
+    } catch (e) { b.disabled = false; b.textContent = 'Try again'; toast(e && e.code === 'permission-denied' ? 'Only the owner can import.' : 'Import failed. Check internet and try again.'); }
+  };
+}
+document.addEventListener('change', e => { if (e.target.id === 'impFile' && e.target.files[0]) { const f = e.target.files[0]; e.target.value = ''; importBackup(f); } });
+window.addEventListener('online', () => render()); window.addEventListener('offline', () => render());
+
+/* ---------- start ---------- */
+(function boot() {
+  S.mode = 'loading';
+  render(true);
+  const cfg = window.FIREBASE_CONFIG;
+  if (!window.firebase || !cfg || !cfg.apiKey || /PASTE/.test(cfg.apiKey)) {
+    return gate(`<h2>Almost ready</h2><p>${window.firebase ? 'The Firebase settings have not been added yet.' : 'Could not load. Check your internet connection and reload.'}</p>`);
+  }
+  firebase.initializeApp(cfg);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  try { db.enablePersistence({synchronizeTabs: true}).catch(() => {}); } catch {}
+  gate('<p>Loading…</p>');
+  auth.getRedirectResult().catch(e => { if (e && e.code && e.code !== 'auth/no-auth-event') showLogin('Sign-in did not work. Please try again. (' + e.code + ')'); });
+  auth.onAuthStateChanged(u => {
+    fbUser = u;
+    if (!u) { unsubs.forEach(f => { try { f(); } catch {} }); unsubs = []; return showLogin(); }
+    checkAccess();
+  });
+})();
+</script>
+</body>
+</html>

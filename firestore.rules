@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null && request.auth.token.email != null; }
+    function me() { return request.auth.token.email.lower(); }
+    function hasAccessDoc() { return exists(/databases/$(database)/documents/config/access); }
+    function access() { return get(/databases/$(database)/documents/config/access).data; }
+    function isOwner() { return signedIn() && hasAccessDoc() && access().owner == me(); }
+    function isStaff() { return signedIn() && hasAccessDoc() && (access().owner == me() || me() in access().staff); }
+
+    // Who may use the store. The first person to set up becomes the owner.
+    match /config/access {
+      allow read: if signedIn();
+      allow create: if signedIn() && !hasAccessDoc()
+                    && request.resource.data.owner == me()
+                    && request.resource.data.staff is list;
+      allow update: if isOwner()
+                    && request.resource.data.owner == resource.data.owner
+                    && request.resource.data.staff is list;
+      allow delete: if false;
+    }
+
+    // All kitchen data: only the owner and staff.
+    match /{col}/{docId} {
+      allow read, write: if col != 'config' && isStaff();
+    }
+  }
+}

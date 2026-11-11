@@ -1,15 +1,9 @@
-# Kitchen Store – Android app
+# Kitchen Store
 
-The app opens the shared Kitchen Store page (https://claude.ai/artifact/9ksegt2KirTN9Lycr26uJP)
-in Chrome, so the phone and the web version always show the same stock.
+School kitchen stock app: stock in/out, daily meals, monthly registers (PDF/Excel), staff sign-in with Google.
 
-- Each staff member signs in to Claude once in Chrome on the phone.
-- The owner shares the page with each staff member as **Contributor** (Share button on the page).
+- **Web app:** https://bishalsaha9624-stack.github.io/kitchen-store/ (files in `docs/`)
+- **Android app:** [KitchenStore.apk](https://github.com/bishalsaha9624-stack/kitchen-store/releases/download/latest/KitchenStore.apk) – opens the web app.
+- **Data:** Google Firebase (Firestore + Google sign-in). Settings in `docs/config.js`, security rules in `firestore.rules`.
 
-## Getting the APK
-Every push to `main` builds the app on GitHub Actions and publishes **KitchenStore.apk** under
-**Releases → "Kitchen Store app (latest)"**. Download it on the phone and install it
-(allow "Install unknown apps" for your browser when Android asks).
-
-## Changing the link
-Edit `store_url` in `app/src/main/res/values/strings.xml`, raise `versionCode` in `app/build.gradle`, and push.
+The first Gmail to sign in and tap **Set up** becomes the owner; the owner adds staff Gmail addresses in ⚙ Settings → Staff.
